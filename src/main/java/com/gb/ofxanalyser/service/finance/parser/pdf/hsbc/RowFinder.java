@@ -66,7 +66,12 @@ public class RowFinder implements RenderListener {
 
 	public void endTextBlock() {
 		Float[] keys = candidates.keySet().toArray(new Float[candidates.size()]);
-		Arrays.sort(keys);
+		Arrays.sort(keys, new Comparator<Float>() {
+
+			public int compare(Float o1, Float o2) {
+				return (int) (o2 - o1);
+			}
+		});
 		List<Rectangle2D.Float> resultList = new ArrayList<Rectangle2D.Float>();
 
 		for (float y : keys) {
