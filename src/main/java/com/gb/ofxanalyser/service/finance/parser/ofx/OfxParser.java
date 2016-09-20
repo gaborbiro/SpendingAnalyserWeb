@@ -1,16 +1,11 @@
 package com.gb.ofxanalyser.service.finance.parser.ofx;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.pdfbox.cos.COSDocument;
-import org.apache.pdfbox.pdfparser.FDFParser;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
-
 import com.gb.ofxanalyser.service.finance.parser.FileParser;
+import com.gb.ofxanalyser.service.finance.parser.ParseException;
 import com.gb.ofxanalyser.service.finance.parser.TransactionAggregate;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
 
@@ -25,7 +20,7 @@ import net.sf.ofx4j.io.OFXParseException;
 
 public class OfxParser implements FileParser {
 
-	public void parse(byte[] file, Map<TransactionItem, TransactionAggregate> aggregate) {
+	public void parse(byte[] file, Map<TransactionItem, TransactionAggregate> aggregate) throws ParseException {
 		AggregateUnmarshaller<ResponseEnvelope> unmarshaller = new AggregateUnmarshaller<ResponseEnvelope>(
 				ResponseEnvelope.class);
 		try {
@@ -56,30 +51,10 @@ public class OfxParser implements FileParser {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw new ParseException(e.getMessage());
 		} catch (OFXParseException e) {
 			e.printStackTrace();
-		}
-	}
-
-	private void processOfxPdfFile(byte[] ofxFile, Map<TransactionItem, TransactionAggregate> transactionMap) {
-		ByteArrayInputStream in = new ByteArrayInputStream(ofxFile);
-		try {
-			org.apache.pdfbox.pdfparser.FDFParser parser = new FDFParser(
-					new File("c:\\Downloads\\Developer%3B+Android.pdf"));
-			parser.setLenient(true);
-			parser.parse();
-			COSDocument cosDoc = parser.getDocument();
-			PDFTextStripper pdfStripper = new PDFTextStripper();
-			PDDocument pdDoc = new PDDocument(cosDoc);
-			String parsedText = pdfStripper.getText(pdDoc);
-			System.out.println(parsedText);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				in.close();
-			} catch (IOException e) {
-			}
+			throw new ParseException(e.getMessage());
 		}
 	}
 }

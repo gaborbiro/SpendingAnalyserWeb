@@ -4,5 +4,6 @@ import java.util.Map;
 
 public interface FileParser {
 
-	public void parse(byte[] file, Map<TransactionItem, TransactionAggregate> transactionAggregate);
+	public void parse(byte[] file, Map<TransactionItem, TransactionAggregate> transactionAggregate)
+			throws ParseException;
 }

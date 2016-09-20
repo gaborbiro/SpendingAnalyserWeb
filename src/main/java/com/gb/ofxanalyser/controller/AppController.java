@@ -26,7 +26,6 @@ import com.gb.ofxanalyser.model.Spending;
 import com.gb.ofxanalyser.model.User;
 import com.gb.ofxanalyser.model.UserDocument;
 import com.gb.ofxanalyser.service.finance.FinanceService;
-import com.gb.ofxanalyser.service.finance.FinanceService.Type;
 import com.gb.ofxanalyser.service.user.UserDocumentService;
 import com.gb.ofxanalyser.service.user.UserService;
 import com.gb.ofxanalyser.util.FileValidator;
@@ -163,10 +162,10 @@ public class AppController {
 		FinanceService.SpendingAggregator.Builder builder = new FinanceService.SpendingAggregator.Builder(null);
 
 		for (int i = 0; i < documents.size(); i++) {
-			builder.file(documents.get(i).getContent(), Type.OFX);
+			builder.with(documents.get(i).getName(), documents.get(i).getContent());
 		}
 
-		List<Spending> spendings = builder.build().getSpendings();
+		List<Spending> spendings = builder.build().doAggregate();
 		model.addAttribute("spendings", spendings);
 
 		return "managedocuments";
@@ -176,7 +175,7 @@ public class AppController {
 	public String downloadDocument(@PathVariable int userId, @PathVariable int docId, HttpServletResponse response)
 			throws IOException {
 		UserDocument document = userDocumentService.findById(docId);
-		response.setContentType(document.getType());
+		response.setContentType(document.getContentType());
 		response.setContentLength(document.getContent().length);
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + document.getName() + "\"");
 
@@ -224,7 +223,7 @@ public class AppController {
 
 		document.setName(multipartFile.getOriginalFilename());
 		document.setDescription(fileBucket.getDescription());
-		document.setType(multipartFile.getContentType());
+		document.setContentType(multipartFile.getContentType());
 		document.setContent(multipartFile.getBytes());
 		document.setUser(user);
 		userDocumentService.saveDocument(document);

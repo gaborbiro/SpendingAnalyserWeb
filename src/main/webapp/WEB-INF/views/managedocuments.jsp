@@ -36,7 +36,7 @@
 						<tr>
 							<td>${counter.index + 1}</td>
 							<td>${doc.name}</td>
-							<td>${doc.type}</td>
+							<td>${doc.contentType}</td>
 							<td>${doc.description}</td>
 							<td><a href="<c:url value='/download-document-${user.id}-${doc.id}' />" class="btn btn-success custom-width">download</a></td>
 							<td><a href="<c:url value='/delete-document-${user.id}-${doc.id}' />" class="btn btn-danger custom-width">delete</a></td>

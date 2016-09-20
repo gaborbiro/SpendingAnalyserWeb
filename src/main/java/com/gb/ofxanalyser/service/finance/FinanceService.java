@@ -8,11 +8,14 @@ import java.util.List;
 import java.util.Map;
 
 import com.gb.ofxanalyser.model.Spending;
+import com.gb.ofxanalyser.service.finance.parser.Document;
 import com.gb.ofxanalyser.service.finance.parser.FileParser;
+import com.gb.ofxanalyser.service.finance.parser.ParseException;
 import com.gb.ofxanalyser.service.finance.parser.TransactionAggregate;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
 import com.gb.ofxanalyser.service.finance.parser.ofx.OfxParser;
 import com.gb.ofxanalyser.service.finance.parser.pdf.hsbc.HsbcPdfParser;
+import com.gb.ofxanalyser.service.finance.parser.pdf.revolut.RevolutPdfParser;
 
 public class FinanceService {
 
@@ -22,49 +25,44 @@ public class FinanceService {
 	public static class SpendingAggregator {
 
 		private AggregationPolicy aggregationPolicy;
-		private byte[][] files;
-		private Type[] types;
+		private Document[] files;
 
 		private List<Spending> spendings;
 
-		private SpendingAggregator(AggregationPolicy aggregationPolicy, byte[][] files, Type[] types) {
+		private SpendingAggregator(AggregationPolicy aggregationPolicy, Document... files) {
 			this.aggregationPolicy = aggregationPolicy;
 			this.files = files;
-			this.types = types;
 		}
 
 		public static class Builder {
-
 			private AggregationPolicy aggregationPolicy;
-			private List<byte[]> files = new ArrayList<byte[]>();
-			private List<Type> types = new ArrayList<FinanceService.Type>();
+			private List<Document> files = new ArrayList<Document>();
 
 			public Builder(AggregationPolicy aggregationPolicy) {
 				this.aggregationPolicy = aggregationPolicy;
 			}
 
-			public Builder file(byte[] file, Type type) {
-				files.add(file);
-				types.add(type);
+			public Builder with(String title, byte[] content) {
+				files.add(new Document(title, content));
 				return this;
 			}
 
 			public SpendingAggregator build() {
-				SpendingAggregator aggregator = new SpendingAggregator(aggregationPolicy,
-						files.toArray(new byte[files.size()][]), types.toArray(new Type[types.size()]));
-				aggregator.doAggregate();
-				return aggregator;
+				return new SpendingAggregator(aggregationPolicy, files.toArray(new Document[files.size()]));
 			}
 		}
 
-		private void doAggregate() {
+		public List<Spending> doAggregate() {
 			Map<TransactionItem, TransactionAggregate> aggregate = new HashMap<TransactionItem, TransactionAggregate>();
 
 			for (int i = 0; i < files.length; i++) {
-				FileParser parser = getParser(types[i]);
-
-				if (parser != null) {
-					parser.parse(files[i], aggregate);
+				for (FileParser parser : getParsers(files[i])) {
+					try {
+						parser.parse(files[i].getContent(), aggregate);
+						break;
+					} catch (ParseException e) {
+						// nothing to do, just try the next parser
+					}
 				}
 			}
 
@@ -85,6 +83,15 @@ public class FinanceService {
 					spendings.add(new Spending(buffer.toString(), df.format(transactionInfo.total)));
 				}
 			}
+			return spendings;
+		}
+
+		private static FileParser[] getParsers(Document file) {
+			if (file.title.endsWith("pdf")) {
+				return new FileParser[] { new HsbcPdfParser(), new RevolutPdfParser(), new OfxParser() };
+			} else {
+				return new FileParser[] { new OfxParser(), new HsbcPdfParser(), new RevolutPdfParser() };
+			}
 		}
 
 		public List<Spending> getSpendings() {
@@ -99,25 +106,5 @@ public class FinanceService {
 	 */
 	public interface AggregationPolicy {
 		public boolean equals(TransactionItem a, TransactionItem b);
-	}
-
-	public static FileParser getParser(Type type) {
-		switch (type) {
-		case OFX:
-			return new OfxParser();
-		case HSBC_PDF:
-			return new HsbcPdfParser();
-		case REVOLUT_PDF:
-			return new FileParser() {
-
-				public void parse(byte[] file, Map<TransactionItem, TransactionAggregate> transactionAggregate) {
-				}
-			};
-		}
-		return null;
-	}
-
-	public enum Type {
-		OFX, HSBC_PDF, REVOLUT_PDF
 	}
 }

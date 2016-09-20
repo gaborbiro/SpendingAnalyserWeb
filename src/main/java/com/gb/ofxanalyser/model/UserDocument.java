@@ -26,8 +26,8 @@ public class UserDocument {
 	@Column(name = "description", length = 255)
 	private String description;
 
-	@Column(name = "type", length = 100, nullable = false)
-	private String type;
+	@Column(name = "contentType", length = 100, nullable = false)
+	private String contentType;
 
 	@Lob
 	@Basic(fetch = FetchType.LAZY)
@@ -62,12 +62,12 @@ public class UserDocument {
 		this.description = description;
 	}
 
-	public String getType() {
-		return type;
+	public String getContentType() {
+		return contentType;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
 	}
 
 	public byte[] getContent() {
@@ -119,6 +119,7 @@ public class UserDocument {
 
 	@Override
 	public String toString() {
-		return "UserDocument [id=" + id + ", name=" + name + ", description=" + description + ", type=" + type + "]";
+		return "UserDocument [id=" + id + ", name=" + name + ", description=" + description + ", contentType="
+				+ contentType + "]";
 	}
 }
