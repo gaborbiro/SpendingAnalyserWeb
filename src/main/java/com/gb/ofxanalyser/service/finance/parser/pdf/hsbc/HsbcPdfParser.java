@@ -2,12 +2,15 @@ package com.gb.ofxanalyser.service.finance.parser.pdf.hsbc;
 
 import java.io.FileOutputStream;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.gb.ofxanalyser.service.finance.parser.FileParser;
 import com.gb.ofxanalyser.service.finance.parser.ParseException;
 import com.gb.ofxanalyser.service.finance.parser.TransactionAggregate;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
+import com.gb.ofxanalyser.util.dynagrid.Cell;
 import com.gb.ofxanalyser.util.dynagrid.Grid;
 import com.gb.ofxanalyser.util.dynagrid.Header;
 import com.itextpdf.awt.geom.Rectangle2D;
@@ -27,7 +30,7 @@ public class HsbcPdfParser implements FileParser {
 			PdfReaderContentParser parser = new PdfReaderContentParser(reader);
 			stamper = new PdfStamper(reader, new FileOutputStream("c:\\Downloads\\statement_out.pdf"));
 
-			for (int i = 1; i <= 1; i++) {
+			for (int i = 1; i <= reader.getNumberOfPages(); i++) {
 				RowFinder finder1 = parser.processContent(i, new RowFinder("BALANCE BROUGHT FORWARD"));
 				RowFinder finder2 = parser.processContent(i, new RowFinder("BALANCE CARRIED FORWARD"));
 
@@ -48,25 +51,40 @@ public class HsbcPdfParser implements FileParser {
 
 					if (table.size() > 0) {
 						System.out.println("\n\n\n\n\n");
+						table.collapse(0f, 80.6f, new Grid.Collapse<String>() {
+
+							public String collapse(List<String> items) {
+								return items.stream().collect(Collectors.joining(" "));
+							}
+						});
+						table.collapse(finder1.getLlx(0), 370f, new Grid.Collapse<String>() {
+
+							public String collapse(List<String> items) {
+								return items.stream().collect(Collectors.joining(" "));
+							}
+						});
 						Iterator<Header<Float, String>> colHeaders = table.getColHeaders();
 						Iterator<Header<Float, String>> rowHeaders = table.getRowHeaders();
-						String sep = "\t";
+						int sep = 3;
 
-						for (Iterator<Iterator<String>> ti = table.iterator(); ti.hasNext();) {
+						for (Iterator<Iterator<Cell<Float, String>>> rowI = table.iterator(); rowI.hasNext();) {
 							if (colHeaders.hasNext()) {
 								System.out.print("\t");
 								for (; colHeaders.hasNext();) {
-									System.out.print(colHeaders.next().cells.size() + sep);
+									String text = String.format("%.2f", colHeaders.next().getIndex());
+									System.out.print(text + sep(text, sep));
 								}
+								System.out.println();
 								System.out.println();
 							}
 							if (rowHeaders.hasNext()) {
-								System.out.print(rowHeaders.next().cells.size() + sep);
+								System.out.print(rowHeaders.next().cells.size() + "\t");
 							}
-							for (Iterator<String> si = ti.next(); si.hasNext();) {
-								String data = si.next();
-								data = data != null ? data.substring(0, Math.min(7, data.length())) : "_";
-								System.out.print(data + sep);
+							for (Iterator<Cell<Float, String>> colI = rowI.next(); colI.hasNext();) {
+								Cell<Float, String> cell = colI.next();
+								String data = cell != null ? cell.data : null;
+								data = data != null ? data : "_";
+								System.out.print(data + sep(data, sep));
 							}
 							System.out.println();
 						}
@@ -85,5 +103,14 @@ public class HsbcPdfParser implements FileParser {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private String sep(String text, int n) {
+		int tabCount = (int) Math.ceil(((float) n * 8 - text.length()) / 8);
+		String sep = "";
+		for (int i = 0; i < tabCount; i++) {
+			sep += "\t";
+		}
+		return sep;
 	}
 }

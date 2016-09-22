@@ -1,9 +1,13 @@
 package com.gb.ofxanalyser.util.dynagrid;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import com.gb.ofxanalyser.util.PeekIterator;
 
 public class Grid<I extends Comparable<I>, T> {
 	TreeSet<Header<I, T>> colHeaders; // x
@@ -24,6 +28,10 @@ public class Grid<I extends Comparable<I>, T> {
 		});
 	}
 
+	public int size() {
+		return rowHeaders.size() * colHeaders.size();
+	}
+
 	public void add(I x, I y, T data) {
 		Header<I, T> colIndexCell = getColIndexCell(x);
 		Header<I, T> rowIndexCell = getRowIndexCell(y);
@@ -35,8 +43,57 @@ public class Grid<I extends Comparable<I>, T> {
 		rowIndexCell.add(cell);
 	}
 
-	public void collapse(float from, float to) {
+	/**
+	 * Collapse all columns (must specify a concatenation strategy) the index of
+	 * which satisfies: from <= index <= to
+	 */
+	public void collapse(I from, I to, Collapse<T> collapse) {
+		Comparator<Cell<I, T>> c = new Comparator<Cell<I, T>>() {
 
+			public int compare(Cell<I, T> o1, Cell<I, T> o2) {
+				return o2.rowHead.getIndex().compareTo(o1.rowHead.getIndex());
+			}
+		};
+		Header<I, T> resultColHeader = new Header<I, T>(from, c);
+
+		Set<Header<I, T>> colsToRemove = new TreeSet<Header<I, T>>(new Comparator<Header<I, T>>() {
+
+			public int compare(Header<I, T> o1, Header<I, T> o2) {
+				return o1.getIndex().compareTo(o2.getIndex());
+			}
+		});
+
+		for (Iterator<Iterator<Cell<I, T>>> rowI = iterator(from, to); rowI.hasNext();) {
+			List<T> data = new ArrayList<T>();
+			List<Cell<I, T>> toRemove = new ArrayList<Cell<I, T>>();
+			Header<I, T> rowHead = null;
+
+			for (Iterator<Cell<I, T>> cellI = rowI.next(); cellI.hasNext();) {
+				Cell<I, T> cell = cellI.next();
+				if (cell != null) {
+					data.add(cell.data);
+					// cell.rowHead.cells.remove(cell);
+					toRemove.add(cell);
+
+					if (rowHead == null) {
+						rowHead = cell.rowHead;
+					}
+					colsToRemove.add(cell.colHead);
+				}
+			}
+			if (rowHead != null) {
+				rowHead.cells.removeAll(toRemove);
+				T newData = collapse.collapse(data);
+				Cell<I, T> newCell = new Cell<I, T>();
+				newCell.colHead = resultColHeader;
+				newCell.rowHead = rowHead;
+				newCell.data = newData;
+				resultColHeader.cells.add(newCell);
+				rowHead.cells.add(newCell);
+			}
+		}
+		colHeaders.removeAll(colsToRemove);
+		colHeaders.add(resultColHeader);
 	}
 
 	public Iterator<Header<I, T>> getColHeaders() {
@@ -47,8 +104,12 @@ public class Grid<I extends Comparable<I>, T> {
 		return rowHeaders.iterator();
 	}
 
-	public Iterator<Iterator<T>> iterator() {
-		return new Iterator<Iterator<T>>() {
+	public Iterator<Iterator<Cell<I, T>>> iterator() {
+		return iterator(null, null);
+	}
+
+	public Iterator<Iterator<Cell<I, T>>> iterator(final I colStart, final I colEnd) {
+		return new Iterator<Iterator<Cell<I, T>>>() {
 
 			private Iterator<Header<I, T>> rowHeadI = rowHeaders.iterator();
 
@@ -56,39 +117,66 @@ public class Grid<I extends Comparable<I>, T> {
 				return rowHeadI.hasNext();
 			}
 
-			public Iterator<T> next() {
-				final Header<I, T> rowHeader = rowHeadI.next();
-
-				return new Iterator<T>() {
-
-					private Iterator<Cell<I, T>> rowCellI = rowHeader.cells.iterator();
-					private Iterator<Header<I, T>> colHeadI = colHeaders.iterator();
-					private Cell<I, T> currentCell;
-
-					public boolean hasNext() {
-						return colHeadI.hasNext();
-					}
-
-					public T next() {
-						Header<I, T> colHead = colHeadI.next();
-
-						if (currentCell == null) {
-							if (!rowCellI.hasNext()) {
-								return null;
-							}
-							currentCell = rowCellI.next();
-						}
-						if (currentCell.colHead == colHead) {
-							T data = currentCell.data;
-							currentCell = null;
-							return data;
-						} else {
-							return null;
-						}
-					}
-				};
+			public Iterator<Cell<I, T>> next() {
+				return new ColumnIterator(rowHeadI.next(), colStart, colEnd);
 			}
 		};
+	}
+
+	private class ColumnIterator implements Iterator<Cell<I, T>> {
+
+		private PeekIterator<Cell<I, T>> rowCellI;
+		private Iterator<Header<I, T>> colHeadI;
+		private PeekIterator<Header<I, T>> colHeadIPeek;
+		private Cell<I, T> currentCell;
+		private I colEnd;
+
+		public ColumnIterator(Header<I, T> rowHead, I colStart, I colEnd) {
+			rowCellI = new PeekIterator<Cell<I, T>>(rowHead.cells.iterator());
+			this.colEnd = colEnd;
+
+			if (colStart == null && colEnd == null) {
+				colHeadI = colHeaders.iterator();
+			} else {
+				colHeadIPeek = new PeekIterator<Header<I, T>>(colHeaders.iterator());
+
+				if (colStart != null) {
+					while (colHeadIPeek.hasNext() && colHeadIPeek.peek().getIndex().compareTo(colStart) < 0) {
+						colHeadIPeek.next();
+					}
+					while (rowCellI.hasNext() && rowCellI.peek().colHead.getIndex().compareTo(colStart) < 0) {
+						rowCellI.next();
+					}
+				}
+				colHeadI = colHeadIPeek;
+			}
+		}
+
+		public boolean hasNext() {
+			if (colEnd != null) {
+				return colHeadIPeek.hasNext() ? (colHeadIPeek.peek().getIndex().compareTo(colEnd) <= 0) : false;
+			} else {
+				return colHeadI.hasNext();
+			}
+		}
+
+		public Cell<I, T> next() {
+			Header<I, T> colHead = colHeadI.next();
+
+			if (currentCell == null) {
+				if (!rowCellI.hasNext()) {
+					return null;
+				}
+				currentCell = rowCellI.next();
+			}
+			if (currentCell.colHead == colHead) {
+				Cell<I, T> result = currentCell;
+				currentCell = null;
+				return result;
+			} else {
+				return null;
+			}
+		}
 	}
 
 	private Header<I, T> getColIndexCell(I index) {
@@ -124,7 +212,7 @@ public class Grid<I extends Comparable<I>, T> {
 		return indexCell;
 	}
 
-	public int size() {
-		return rowHeaders.size() * colHeaders.size();
+	public static interface Collapse<T> {
+		public T collapse(List<T> items);
 	}
 }
