@@ -31,12 +31,13 @@ public class HsbcPdfParser implements FileParser {
 			stamper = new PdfStamper(reader, new FileOutputStream("c:\\Downloads\\statement_out.pdf"));
 
 			for (int i = 1; i <= reader.getNumberOfPages(); i++) {
-				RowFinder finder1 = parser.processContent(i, new RowFinder("BALANCE BROUGHT FORWARD"));
-				RowFinder finder2 = parser.processContent(i, new RowFinder("BALANCE CARRIED FORWARD"));
+//			for (int i = 4; i <= 4; i++) {
+				RowFinder finderBrought = parser.processContent(i, new RowFinder("BALANCE BROUGHT FORWARD"));
+				RowFinder finderCarried = parser.processContent(i, new RowFinder("BALANCE CARRIED FORWARD"));
 
-				if (finder1.getCount() == 1 && finder2.getCount() == 1 && finder1.getLly(0) > finder2.getLly(0)) {
-					Rectangle2D.Float rect = new Rectangle2D.Float(0, finder2.getUry(0) + 1, Float.MAX_VALUE,
-							finder1.getLly(0) - finder2.getUry(0) - 2);
+				if (finderBrought.getCount() == 1 && finderCarried.getCount() == 1 && finderBrought.getLly(0) > finderCarried.getLly(0)) {
+					Rectangle2D.Float rect = new Rectangle2D.Float(0, finderCarried.getUry(0) + 1, Float.MAX_VALUE,
+							finderBrought.getLly(0) - finderCarried.getUry(0) - 2);
 					BoundedTextMarginFinder marginFinder = parser.processContent(i, new BoundedTextMarginFinder(rect));
 					if (marginFinder.isFound()) {
 						PdfContentByte cb = stamper.getOverContent(i);
@@ -51,18 +52,43 @@ public class HsbcPdfParser implements FileParser {
 
 					if (table.size() > 0) {
 						System.out.println("\n\n\n\n\n");
-						table.collapse(0f, 80.6f, new Grid.Collapse<String>() {
+						RowFinder finderPaimentType = parser.processContent(i, new RowFinder("Payment type and details"));
+						table.collapse(0f, finderPaimentType.getLlx(0) - 1, new Grid.Collapse<String>() {
 
 							public String collapse(List<String> items) {
 								return items.stream().collect(Collectors.joining(" "));
 							}
 						});
-						table.collapse(finder1.getLlx(0), 370f, new Grid.Collapse<String>() {
+						
+						int moneyColumnBuffer = 20;
+
+						RowFinder finderPaidOut = parser.processContent(i, new RowFinder("Paid out"));
+						table.collapse(finderBrought.getLlx(0), finderPaidOut.getLlx(0) - moneyColumnBuffer - 1, new Grid.Collapse<String>() {
 
 							public String collapse(List<String> items) {
 								return items.stream().collect(Collectors.joining(" "));
 							}
 						});
+						table.collapse(finderPaidOut.getLlx(0) - moneyColumnBuffer, finderPaidOut.getLlx(0) + finderPaidOut.getWidth(0), new Grid.Collapse<String>() {
+
+							public String collapse(List<String> items) {
+								return items.stream().collect(Collectors.joining(" "));
+							}
+						});
+						RowFinder finderPaidIn = parser.processContent(i, new RowFinder("Paid in"));
+						table.collapse(finderPaidOut.getLlx(0) + finderPaidOut.getWidth(0) + 1, finderPaidIn.getLlx(0) + finderPaidIn.getWidth(0), new Grid.Collapse<String>() {
+
+							public String collapse(List<String> items) {
+								return items.stream().collect(Collectors.joining(" "));
+							}
+						});
+						table.collapse(finderPaidIn.getLlx(0) + finderPaidIn.getWidth(0) + 1, null, new Grid.Collapse<String>() {
+
+							public String collapse(List<String> items) {
+								return items.stream().collect(Collectors.joining(" "));
+							}
+						});
+						
 						Iterator<Header<Float, String>> colHeaders = table.getColHeaders();
 						Iterator<Header<Float, String>> rowHeaders = table.getRowHeaders();
 						int sep = 3;
@@ -84,6 +110,7 @@ public class HsbcPdfParser implements FileParser {
 								Cell<Float, String> cell = colI.next();
 								String data = cell != null ? cell.data : null;
 								data = data != null ? data : "_";
+								data = data.substring(0, Math.min(sep * 7, data.length()));
 								System.out.print(data + sep(data, sep));
 							}
 							System.out.println();
