@@ -5,31 +5,29 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class Grid<T> {
-	TreeSet<Header<T>> colHeaders; // x
-	TreeSet<Header<T>> rowHeaders; // y
+public class Grid<I extends Comparable<I>, T> {
+	TreeSet<Header<I, T>> colHeaders; // x
+	TreeSet<Header<I, T>> rowHeaders; // y
 
 	public Grid() {
-		colHeaders = new TreeSet<Header<T>>(new Comparator<Header<T>>() {
+		colHeaders = new TreeSet<Header<I, T>>(new Comparator<Header<I, T>>() {
 
-			public int compare(Header<T> o1, Header<T> o2) {
-				float f = o1.getPosition() - o2.getPosition();
-				return f < 0 ? -1 : (f > 0 ? 1 : 0);
+			public int compare(Header<I, T> o1, Header<I, T> o2) {
+				return o1.getIndex().compareTo(o2.getIndex());
 			}
 		});
-		rowHeaders = new TreeSet<Header<T>>(new Comparator<Header<T>>() {
+		rowHeaders = new TreeSet<Header<I, T>>(new Comparator<Header<I, T>>() {
 
-			public int compare(Header<T> o1, Header<T> o2) {
-				float f = o2.getPosition() - o1.getPosition();
-				return f < 0 ? -1 : (f > 0 ? 1 : 0);
+			public int compare(Header<I, T> o1, Header<I, T> o2) {
+				return o2.getIndex().compareTo(o1.getIndex());
 			}
 		});
 	}
 
-	public void add(float x, float y, T data) {
-		Header<T> colIndexCell = getColIndexCell(x);
-		Header<T> rowIndexCell = getRowIndexCell(y);
-		Cell<T> cell = new Cell<T>();
+	public void add(I x, I y, T data) {
+		Header<I, T> colIndexCell = getColIndexCell(x);
+		Header<I, T> rowIndexCell = getRowIndexCell(y);
+		Cell<I, T> cell = new Cell<I, T>();
 		cell.data = data;
 		cell.colHead = colIndexCell;
 		cell.rowHead = rowIndexCell;
@@ -37,38 +35,42 @@ public class Grid<T> {
 		rowIndexCell.add(cell);
 	}
 
-	public Iterator<Header<T>> getColHeaders() {
+	public void collapse(float from, float to) {
+
+	}
+
+	public Iterator<Header<I, T>> getColHeaders() {
 		return colHeaders.iterator();
 	}
 
-	public Iterator<Header<T>> getRowHeaders() {
+	public Iterator<Header<I, T>> getRowHeaders() {
 		return rowHeaders.iterator();
 	}
 
 	public Iterator<Iterator<T>> iterator() {
 		return new Iterator<Iterator<T>>() {
 
-			private Iterator<Header<T>> rowHeadI = rowHeaders.iterator();
+			private Iterator<Header<I, T>> rowHeadI = rowHeaders.iterator();
 
 			public boolean hasNext() {
 				return rowHeadI.hasNext();
 			}
 
 			public Iterator<T> next() {
-				final Header<T> rowHeader = rowHeadI.next();
+				final Header<I, T> rowHeader = rowHeadI.next();
 
 				return new Iterator<T>() {
 
-					private Iterator<Cell<T>> rowCellI = rowHeader.cells.iterator();
-					private Iterator<Header<T>> colHeadI = colHeaders.iterator();
-					private Cell<T> currentCell;
+					private Iterator<Cell<I, T>> rowCellI = rowHeader.cells.iterator();
+					private Iterator<Header<I, T>> colHeadI = colHeaders.iterator();
+					private Cell<I, T> currentCell;
 
 					public boolean hasNext() {
 						return colHeadI.hasNext();
 					}
 
 					public T next() {
-						Header<T> colHead = colHeadI.next();
+						Header<I, T> colHead = colHeadI.next();
 
 						if (currentCell == null) {
 							if (!rowCellI.hasNext()) {
@@ -81,7 +83,6 @@ public class Grid<T> {
 							currentCell = null;
 							return data;
 						} else {
-//							return (T) String.format("%.2f", currentCell.colHead.getPosition());
 							return null;
 						}
 					}
@@ -90,35 +91,35 @@ public class Grid<T> {
 		};
 	}
 
-	private Header<T> getColIndexCell(float position) {
-		Comparator<Cell<T>> c = new Comparator<Cell<T>>() {
+	private Header<I, T> getColIndexCell(I index) {
+		Comparator<Cell<I, T>> c = new Comparator<Cell<I, T>>() {
 
-			public int compare(Cell<T> o1, Cell<T> o2) {
-				return (int) (o2.rowHead.getPosition() - o1.rowHead.getPosition());
+			public int compare(Cell<I, T> o1, Cell<I, T> o2) {
+				return o2.rowHead.getIndex().compareTo(o1.rowHead.getIndex());
 			}
 		};
-		return getIndexCell(colHeaders, position, c);
+		return getIndexCell(colHeaders, index, c);
 	}
 
-	private Header<T> getRowIndexCell(float position) {
-		Comparator<Cell<T>> c = new Comparator<Cell<T>>() {
+	private Header<I, T> getRowIndexCell(I index) {
+		Comparator<Cell<I, T>> c = new Comparator<Cell<I, T>>() {
 
-			public int compare(Cell<T> o1, Cell<T> o2) {
-				return (int) (o1.colHead.getPosition() - o2.colHead.getPosition());
+			public int compare(Cell<I, T> o1, Cell<I, T> o2) {
+				return o1.colHead.getIndex().compareTo(o2.colHead.getIndex());
 			}
 		};
-		return getIndexCell(rowHeaders, position, c);
+		return getIndexCell(rowHeaders, index, c);
 	}
 
-	private Header<T> getIndexCell(Set<Header<T>> indexSet, float position, Comparator<Cell<T>> c) {
-		for (Iterator<Header<T>> i = indexSet.iterator(); i.hasNext();) {
-			Header<T> indexCell = i.next();
+	private Header<I, T> getIndexCell(Set<Header<I, T>> indexSet, I index, Comparator<Cell<I, T>> c) {
+		for (Iterator<Header<I, T>> i = indexSet.iterator(); i.hasNext();) {
+			Header<I, T> indexCell = i.next();
 
-			if (position == indexCell.getPosition()) {
+			if (index.equals(indexCell.getIndex())) {
 				return indexCell;
 			}
 		}
-		Header<T> indexCell = new Header<T>(position, c);
+		Header<I, T> indexCell = new Header<I, T>(index, c);
 		indexSet.add(indexCell);
 		return indexCell;
 	}

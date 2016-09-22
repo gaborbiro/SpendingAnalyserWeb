@@ -1,12 +1,12 @@
 package com.gb.ofxanalyser.util.dynagrid;
 
-public class Cell<T> {
+public class Cell<I, T> {
 	public T data;
-	public Header<T> rowHead;
-	public Header<T> colHead;
+	public Header<I, T> rowHead;
+	public Header<I, T> colHead;
 
 	@Override
 	public String toString() {
-		return "Cell [data=" + data + ", rowHead=" + rowHead.getPosition() + ", colHead=" + colHead.getPosition() + "]";
+		return "Cell [data=" + data + ", rowHead=" + rowHead.getIndex() + ", colHead=" + colHead.getIndex() + "]";
 	}
 }

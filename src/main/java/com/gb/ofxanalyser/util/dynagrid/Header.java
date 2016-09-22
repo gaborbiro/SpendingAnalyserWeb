@@ -4,25 +4,25 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class Header<T> {
-	private final float position;
-	public final Set<Cell<T>> cells;
+public class Header<I, T> {
+	private final I index;
+	public final Set<Cell<I, T>> cells;
 
-	public Header(float position, Comparator<Cell<T>> c) {
-		this.position = position;
-		cells = new TreeSet<Cell<T>>(c);
+	public Header(I index, Comparator<Cell<I, T>> c) {
+		this.index = index;
+		cells = new TreeSet<Cell<I, T>>(c);
 	}
 
-	public boolean add(Cell<T> cell) {
+	public boolean add(Cell<I, T> cell) {
 		return cells.add(cell);
 	}
 
-	public float getPosition() {
-		return position;
+	public I getIndex() {
+		return index;
 	}
 
 	@Override
 	public String toString() {
-		return "Header [position=" + position + ", cells=" + cells + "]";
+		return "Header [index=" + index + ", cells=" + cells + "]";
 	}
 }
