@@ -91,6 +91,7 @@
 			      		<tr>
 					        <th>#</th>
 					        <th>Memo|Name</th>
+					        <th>Date</th>
 					        <th>Amount</th>
 						</tr>
 			    	</thead>
@@ -99,6 +100,7 @@
 						<tr>
 							<td>${counter.index + 1}</td>
 							<td>${spending.description}</td>
+							<td>${spending.date}</td>
 							<td>${spending.amount}</td>
 						</tr>
 					</c:forEach>

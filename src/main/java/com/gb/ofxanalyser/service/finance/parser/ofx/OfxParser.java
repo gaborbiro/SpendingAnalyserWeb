@@ -36,7 +36,9 @@ public class OfxParser implements FileParser {
 						for (Transaction transaction : transactionList.getTransactions()) {
 							TransactionAggregate transactionInfo;
 							TransactionItem bankTransaction = new TransactionItem(transaction);
+							bankTransaction.name = "O " + bankTransaction.name;
 
+							// aggregation
 							if (aggregate.containsKey(bankTransaction)) {
 								transactionInfo = aggregate.get(bankTransaction);
 							} else {

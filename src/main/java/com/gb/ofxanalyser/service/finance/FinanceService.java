@@ -1,8 +1,10 @@
 package com.gb.ofxanalyser.service.finance;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +18,12 @@ import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
 import com.gb.ofxanalyser.service.finance.parser.ofx.OfxParser;
 import com.gb.ofxanalyser.service.finance.parser.pdf.hsbc.HsbcPdfParser;
 import com.gb.ofxanalyser.service.finance.parser.pdf.revolut.RevolutPdfParser;
+import com.gb.ofxanalyser.util.TextUtils;
 
 public class FinanceService {
+
+	private static DecimalFormat DECIMAL_FORMAT = new DecimalFormat(".##");
+	private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MMM");
 
 	/**
 	 * Holds a spending history aggregated by some {@link AggregationPolicy}.
@@ -68,19 +74,27 @@ public class FinanceService {
 
 			TransactionAggregate[] transactionInfos = aggregate.values()
 					.toArray(new TransactionAggregate[aggregate.size()]);
-			Arrays.sort(transactionInfos);
+			Arrays.sort(transactionInfos, new Comparator<TransactionAggregate>() {
+
+				public int compare(TransactionAggregate o1, TransactionAggregate o2) {
+					return o2.transactions.get(0).datePosted.compareTo(o1.transactions.get(0).datePosted);
+				}
+			});
 
 			spendings = new ArrayList<Spending>();
-			DecimalFormat df = new DecimalFormat(".##");
 
 			for (TransactionAggregate transactionInfo : transactionInfos) {
 				if (transactionInfo.transactions != null && transactionInfo.transactions.size() > 0) {
 					StringBuffer buffer = new StringBuffer();
 					TransactionItem bankTransaction = transactionInfo.transactions.get(0);
-					buffer.append(bankTransaction.memo);
-					buffer.append(" | ");
 					buffer.append(bankTransaction.name);
-					spendings.add(new Spending(buffer.toString(), df.format(transactionInfo.total)));
+					if (!TextUtils.isEmpty(bankTransaction.memo)) {
+						buffer.append("\n");
+						buffer.append(bankTransaction.memo);
+					}
+					spendings.add(new Spending(buffer.toString(),
+							DATE_FORMAT.format(transactionInfo.transactions.get(0).datePosted),
+							DECIMAL_FORMAT.format(transactionInfo.total)));
 				}
 			}
 			return spendings;
