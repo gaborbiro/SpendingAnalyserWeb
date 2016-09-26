@@ -84,7 +84,7 @@
 		</div>
 		
 		<div class="panel panel-default">
-		  	<div class="panel-heading"><span class="lead">Spendings</span></div>
+		  	<div class="panel-heading"><span class="lead">Transactions</span></div>
 		  	<div class="tablecontainer">
 		  		<table class="table table-hover">
 		    		<thead>
@@ -92,7 +92,7 @@
 					        <th>#</th>
 					        <th>Memo|Name</th>
 					        <th>Date</th>
-					        <th>Amount</th>
+					        <th style="text-align: right">Amount</th>
 						</tr>
 			    	</thead>
 		    		<tbody>
@@ -101,7 +101,7 @@
 							<td>${counter.index + 1}</td>
 							<td>${spending.description}</td>
 							<td>${spending.date}</td>
-							<td>${spending.amount}</td>
+							<td align="right">${spending.amount}</td>
 						</tr>
 					</c:forEach>
 		    		</tbody>

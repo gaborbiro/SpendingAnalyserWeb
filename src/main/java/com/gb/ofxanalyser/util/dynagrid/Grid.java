@@ -1,9 +1,7 @@
 package com.gb.ofxanalyser.util.dynagrid;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -41,59 +39,6 @@ public class Grid<I extends Comparable<I>, T> {
 		cell.rowHead = rowIndexCell;
 		colIndexCell.add(cell);
 		rowIndexCell.add(cell);
-	}
-
-	/**
-	 * Collapse all columns (must specify a concatenation strategy) the index of
-	 * which satisfies: from <= index <= to
-	 */
-	public void collapse(I from, I to, Collapse<T> collapse) {
-		Comparator<Cell<I, T>> c = new Comparator<Cell<I, T>>() {
-
-			public int compare(Cell<I, T> o1, Cell<I, T> o2) {
-				return o2.rowHead.getIndex().compareTo(o1.rowHead.getIndex());
-			}
-		};
-		Header<I, T> resultColHeader = new Header<I, T>(from, c);
-
-		Set<Header<I, T>> colsToRemove = new TreeSet<Header<I, T>>(new Comparator<Header<I, T>>() {
-
-			public int compare(Header<I, T> o1, Header<I, T> o2) {
-				return o1.getIndex().compareTo(o2.getIndex());
-			}
-		});
-
-		for (Iterator<Iterator<Cell<I, T>>> rowI = iterator(from, to); rowI.hasNext();) {
-			List<T> data = new ArrayList<T>();
-			List<Cell<I, T>> toRemove = new ArrayList<Cell<I, T>>();
-			Header<I, T> rowHead = null;
-
-			for (Iterator<Cell<I, T>> cellI = rowI.next(); cellI.hasNext();) {
-				Cell<I, T> cell = cellI.next();
-				if (cell != null) {
-					data.add(cell.data);
-					// cell.rowHead.cells.remove(cell);
-					toRemove.add(cell);
-
-					if (rowHead == null) {
-						rowHead = cell.rowHead;
-					}
-					colsToRemove.add(cell.colHead);
-				}
-			}
-			if (rowHead != null) {
-				rowHead.cells.removeAll(toRemove);
-				T newData = collapse.collapse(data);
-				Cell<I, T> newCell = new Cell<I, T>();
-				newCell.colHead = resultColHeader;
-				newCell.rowHead = rowHead;
-				newCell.data = newData;
-				resultColHeader.cells.add(newCell);
-				rowHead.cells.add(newCell);
-			}
-		}
-		colHeaders.removeAll(colsToRemove);
-		colHeaders.add(resultColHeader);
 	}
 
 	public Iterator<Header<I, T>> getColHeaders() {
@@ -210,9 +155,5 @@ public class Grid<I extends Comparable<I>, T> {
 		Header<I, T> indexCell = new Header<I, T>(index, c);
 		indexSet.add(indexCell);
 		return indexCell;
-	}
-
-	public static interface Collapse<T> {
-		public T collapse(List<T> items);
 	}
 }

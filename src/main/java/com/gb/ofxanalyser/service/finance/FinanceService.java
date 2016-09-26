@@ -1,6 +1,7 @@
 package com.gb.ofxanalyser.service.finance;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +23,7 @@ import com.gb.ofxanalyser.util.TextUtils;
 
 public class FinanceService {
 
-	private static DecimalFormat DECIMAL_FORMAT = new DecimalFormat(".##");
+	private static NumberFormat DECIMAL_FORMAT = DecimalFormat.getCurrencyInstance();
 	private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MMM");
 
 	/**

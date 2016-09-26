@@ -1,6 +1,6 @@
 package com.gb.ofxanalyser.service.finance.parser.pdf.hsbc;
 
-import com.gb.ofxanalyser.util.dynagrid.Grid;
+import com.gb.ofxanalyser.util.dynagrid.StringGrid;
 import com.itextpdf.awt.geom.Rectangle2D;
 import com.itextpdf.text.pdf.parser.ImageRenderInfo;
 import com.itextpdf.text.pdf.parser.RenderListener;
@@ -9,11 +9,11 @@ import com.itextpdf.text.pdf.parser.TextRenderInfo;
 public class BoundedTableFinder implements RenderListener {
 
 	private Rectangle2D.Float bounds;
-	private Grid<Float, String> grid;
+	private StringGrid grid;
 
 	public BoundedTableFinder(Rectangle2D.Float bounds) {
 		this.bounds = bounds;
-		grid = new Grid<Float, String>();
+		grid = new StringGrid();
 	}
 
 	public void renderText(TextRenderInfo renderInfo) {
@@ -27,7 +27,7 @@ public class BoundedTableFinder implements RenderListener {
 		}
 	}
 
-	public Grid<Float, String> getTable() {
+	public StringGrid getTable() {
 		return grid;
 	}
 
