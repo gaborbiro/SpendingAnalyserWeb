@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.util.dynagrid;
+package com.gb.ofxanalyser.service.finance.parser.pdf.base;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import com.gb.ofxanalyser.util.dynagrid.Cell;
+import com.gb.ofxanalyser.util.dynagrid.Grid;
+import com.gb.ofxanalyser.util.dynagrid.Header;
 
 public class StringGrid extends Grid<Float, String> {
 

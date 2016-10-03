@@ -1,6 +1,6 @@
-package com.gb.ofxanalyser.service.finance.parser.pdf.hsbc;
+package com.gb.ofxanalyser.service.finance.parser.pdf.base.itext;
 
-import com.gb.ofxanalyser.util.dynagrid.StringGrid;
+import com.gb.ofxanalyser.service.finance.parser.pdf.base.StringGrid;
 import com.itextpdf.awt.geom.Rectangle2D;
 import com.itextpdf.text.pdf.parser.ImageRenderInfo;
 import com.itextpdf.text.pdf.parser.RenderListener;

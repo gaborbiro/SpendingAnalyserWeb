@@ -4,27 +4,48 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.springframework.stereotype.Service;
 
 import com.gb.ofxanalyser.model.Spending;
 import com.gb.ofxanalyser.service.finance.parser.Document;
-import com.gb.ofxanalyser.service.finance.parser.FileParser;
+import com.gb.ofxanalyser.service.finance.parser.TransactionExtractor;
 import com.gb.ofxanalyser.service.finance.parser.ParseException;
-import com.gb.ofxanalyser.service.finance.parser.TransactionAggregate;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
 import com.gb.ofxanalyser.service.finance.parser.ofx.OfxParser;
+import com.gb.ofxanalyser.service.finance.parser.pdf.base.itext.PdfParserImpl;
 import com.gb.ofxanalyser.service.finance.parser.pdf.hsbc.HsbcPdfParser;
 import com.gb.ofxanalyser.service.finance.parser.pdf.revolut.RevolutPdfParser;
 import com.gb.ofxanalyser.util.TextUtils;
 
+@Service("financeService")
 public class FinanceService {
 
 	private static NumberFormat DECIMAL_FORMAT = DecimalFormat.getCurrencyInstance();
 	private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MMM");
+
+	public Builder builder(AggregationPolicy aggregationPolicy) {
+		return new Builder(aggregationPolicy);
+	}
+
+	public static class Builder {
+		private AggregationPolicy aggregationPolicy;
+		private List<Document> files = new ArrayList<Document>();
+
+		private Builder(AggregationPolicy aggregationPolicy) {
+			this.aggregationPolicy = aggregationPolicy;
+		}
+
+		public Builder with(String title, byte[] content) {
+			files.add(new Document(title, content));
+			return this;
+		}
+
+		public SpendingAggregator build() {
+			return new SpendingAggregator(aggregationPolicy, files.toArray(new Document[files.size()]));
+		}
+	}
 
 	/**
 	 * Holds a spending history aggregated by some {@link AggregationPolicy}.
@@ -41,71 +62,39 @@ public class FinanceService {
 			this.files = files;
 		}
 
-		public static class Builder {
-			private AggregationPolicy aggregationPolicy;
-			private List<Document> files = new ArrayList<Document>();
-
-			public Builder(AggregationPolicy aggregationPolicy) {
-				this.aggregationPolicy = aggregationPolicy;
-			}
-
-			public Builder with(String title, byte[] content) {
-				files.add(new Document(title, content));
-				return this;
-			}
-
-			public SpendingAggregator build() {
-				return new SpendingAggregator(aggregationPolicy, files.toArray(new Document[files.size()]));
-			}
-		}
-
 		public List<Spending> doAggregate() {
-			Map<TransactionItem, TransactionAggregate> aggregate = new HashMap<TransactionItem, TransactionAggregate>();
+			spendings = new ArrayList<Spending>();
 
 			for (int i = 0; i < files.length; i++) {
-				for (FileParser parser : getParsers(files[i])) {
+				for (TransactionExtractor parser : getParsers(files[i])) {
 					try {
-						parser.parse(files[i].getContent(), aggregate);
+						List<TransactionItem> transactionItems = parser.getTransactions();
+
+						for (TransactionItem transactionInfo : transactionItems) {
+							StringBuffer buffer = new StringBuffer();
+							buffer.append(transactionInfo.name);
+							if (!TextUtils.isEmpty(transactionInfo.memo)) {
+								buffer.append("\n");
+								buffer.append(transactionInfo.memo);
+							}
+							spendings
+									.add(new Spending(buffer.toString(), DATE_FORMAT.format(transactionInfo.datePosted),
+											DECIMAL_FORMAT.format(transactionInfo.amount)));
+						}
 						break;
 					} catch (ParseException e) {
 						// nothing to do, just try the next parser
 					}
 				}
 			}
-
-			TransactionAggregate[] transactionInfos = aggregate.values()
-					.toArray(new TransactionAggregate[aggregate.size()]);
-			Arrays.sort(transactionInfos, new Comparator<TransactionAggregate>() {
-
-				public int compare(TransactionAggregate o1, TransactionAggregate o2) {
-					return o2.transactions.get(0).datePosted.compareTo(o1.transactions.get(0).datePosted);
-				}
-			});
-
-			spendings = new ArrayList<Spending>();
-
-			for (TransactionAggregate transactionInfo : transactionInfos) {
-				if (transactionInfo.transactions != null && transactionInfo.transactions.size() > 0) {
-					StringBuffer buffer = new StringBuffer();
-					TransactionItem bankTransaction = transactionInfo.transactions.get(0);
-					buffer.append(bankTransaction.name);
-					if (!TextUtils.isEmpty(bankTransaction.memo)) {
-						buffer.append("\n");
-						buffer.append(bankTransaction.memo);
-					}
-					spendings.add(new Spending(buffer.toString(),
-							DATE_FORMAT.format(transactionInfo.transactions.get(0).datePosted),
-							DECIMAL_FORMAT.format(transactionInfo.total)));
-				}
-			}
 			return spendings;
 		}
 
-		private static FileParser[] getParsers(Document file) {
+		private static TransactionExtractor[] getParsers(Document file) {
 			if (file.title.endsWith("pdf")) {
-				return new FileParser[] { new HsbcPdfParser(), new RevolutPdfParser(), new OfxParser() };
+				return new TransactionExtractor[] { new HsbcPdfParser(new PdfParserImpl(file)), new RevolutPdfParser() };
 			} else {
-				return new FileParser[] { new OfxParser(), new HsbcPdfParser(), new RevolutPdfParser() };
+				return new TransactionExtractor[] { new OfxParser(file) };
 			}
 		}
 

@@ -2,11 +2,12 @@ package com.gb.ofxanalyser.service.finance.parser.ofx;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.gb.ofxanalyser.service.finance.parser.FileParser;
+import com.gb.ofxanalyser.service.finance.parser.Document;
+import com.gb.ofxanalyser.service.finance.parser.TransactionExtractor;
 import com.gb.ofxanalyser.service.finance.parser.ParseException;
-import com.gb.ofxanalyser.service.finance.parser.TransactionAggregate;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
 
 import net.sf.ofx4j.domain.data.ResponseEnvelope;
@@ -18,13 +19,20 @@ import net.sf.ofx4j.domain.data.common.TransactionList;
 import net.sf.ofx4j.io.AggregateUnmarshaller;
 import net.sf.ofx4j.io.OFXParseException;
 
-public class OfxParser implements FileParser {
+public class OfxParser implements TransactionExtractor {
 
-	public void parse(byte[] file, Map<TransactionItem, TransactionAggregate> aggregate) throws ParseException {
+	private Document file;
+
+	public OfxParser(Document file) {
+		this.file = file;
+	}
+
+	public List<TransactionItem> getTransactions() throws ParseException {
+		List<TransactionItem> result = new ArrayList<TransactionItem>();
 		AggregateUnmarshaller<ResponseEnvelope> unmarshaller = new AggregateUnmarshaller<ResponseEnvelope>(
 				ResponseEnvelope.class);
 		try {
-			ResponseEnvelope response = unmarshaller.unmarshal(new ByteArrayInputStream(file));
+			ResponseEnvelope response = unmarshaller.unmarshal(new ByteArrayInputStream(file.getContent()));
 
 			for (ResponseMessageSet set : response.getMessageSets()) {
 				if (set instanceof BankingResponseMessageSet) {
@@ -34,19 +42,9 @@ public class OfxParser implements FileParser {
 						TransactionList transactionList = statementResponse.getMessage().getTransactionList();
 
 						for (Transaction transaction : transactionList.getTransactions()) {
-							TransactionAggregate transactionInfo;
-							TransactionItem bankTransaction = new TransactionItem(transaction);
-							bankTransaction.name = "O " + bankTransaction.name;
-
-							// aggregation
-							if (aggregate.containsKey(bankTransaction)) {
-								transactionInfo = aggregate.get(bankTransaction);
-							} else {
-								transactionInfo = new TransactionAggregate();
-								aggregate.put(bankTransaction, transactionInfo);
-							}
-							transactionInfo.transactions.add(bankTransaction);
-							transactionInfo.total += bankTransaction.amount;
+							TransactionItem transactionItem = new TransactionItem(transaction);
+							transactionItem.name = "O " + transactionItem.name;
+							result.add(transactionItem);
 						}
 					}
 				}
@@ -58,5 +56,6 @@ public class OfxParser implements FileParser {
 			e.printStackTrace();
 			throw new ParseException(e.getMessage());
 		}
+		return result;
 	}
 }

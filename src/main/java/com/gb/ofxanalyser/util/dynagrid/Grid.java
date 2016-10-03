@@ -8,8 +8,8 @@ import java.util.TreeSet;
 import com.gb.ofxanalyser.util.PeekIterator;
 
 public class Grid<I extends Comparable<I>, T> {
-	TreeSet<Header<I, T>> colHeaders; // x
-	TreeSet<Header<I, T>> rowHeaders; // y
+	protected TreeSet<Header<I, T>> colHeaders; // x
+	protected TreeSet<Header<I, T>> rowHeaders; // y
 
 	public Grid() {
 		colHeaders = new TreeSet<Header<I, T>>(new Comparator<Header<I, T>>() {

@@ -46,6 +46,9 @@ public class AppController {
 	@Autowired
 	FileValidator fileValidator;
 
+	@Autowired
+	FinanceService financeService;
+
 	@InitBinder("fileBucket")
 	protected void initBinder(WebDataBinder binder) {
 		binder.setValidator(fileValidator);
@@ -56,7 +59,6 @@ public class AppController {
 	 */
 	@RequestMapping(value = { "/", "/list" }, method = RequestMethod.GET)
 	public String listUsers(ModelMap model) {
-
 		List<User> users = userService.findAllUsers();
 		model.addAttribute("users", users);
 		return "userslist";
@@ -159,7 +161,7 @@ public class AppController {
 		List<UserDocument> documents = userDocumentService.findAllByUserId(userId);
 		model.addAttribute("documents", documents);
 
-		FinanceService.SpendingAggregator.Builder builder = new FinanceService.SpendingAggregator.Builder(null);
+		FinanceService.Builder builder = financeService.builder(null);
 
 		for (int i = 0; i < documents.size(); i++) {
 			builder.with(documents.get(i).getName(), documents.get(i).getContent());

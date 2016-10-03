@@ -2,21 +2,23 @@ package com.gb.ofxanalyser.service.finance.parser.pdf.hsbc;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
-import com.gb.ofxanalyser.service.finance.parser.FileParser;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.gb.ofxanalyser.service.finance.parser.TransactionExtractor;
 import com.gb.ofxanalyser.service.finance.parser.ParseException;
-import com.gb.ofxanalyser.service.finance.parser.TransactionAggregate;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
+import com.gb.ofxanalyser.service.finance.parser.pdf.base.PdfParser;
+import com.gb.ofxanalyser.service.finance.parser.pdf.base.Rect;
+import com.gb.ofxanalyser.service.finance.parser.pdf.base.StringGrid;
+import com.gb.ofxanalyser.service.finance.parser.pdf.base.TextMatch;
 import com.gb.ofxanalyser.util.dynagrid.Cell;
-import com.gb.ofxanalyser.util.dynagrid.StringGrid;
-import com.itextpdf.awt.geom.Rectangle2D;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 
-public class HsbcPdfParser implements FileParser {
+public class HsbcPdfParser implements TransactionExtractor {
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd MMM yy");
 
@@ -32,26 +34,28 @@ public class HsbcPdfParser implements FileParser {
 	 */
 	private static final int MONEY_COLUMN_LOOKBACK = 20;
 
-	public void parse(byte[] file, Map<TransactionItem, TransactionAggregate> transactionAggregate)
-			throws ParseException {
-		PdfReader reader = null;
+	private PdfParser pdfParser;
+
+	public HsbcPdfParser(PdfParser pdfParser) {
+		this.pdfParser = pdfParser;
+	}
+
+	public List<TransactionItem> getTransactions() throws ParseException {
+		List<TransactionItem> result = new ArrayList<TransactionItem>();
 		try {
-			reader = new PdfReader(file);
-			PdfReaderContentParser parser = new PdfReaderContentParser(reader);
 			Date currentDate = null;
 
-			for (int i = 1; i <= reader.getNumberOfPages(); i++) {
+			for (int i = 1; i <= pdfParser.getNumberOfPages(); i++) {
 				// find the table-part of the page
-				RowFinder finderBrought = parser.processContent(i, new RowFinder(ANCHOR_TABLE_START));
-				RowFinder finderCarried = parser.processContent(i, new RowFinder(ANCHOR_TABLE_END));
+				TextMatch finderBrought = pdfParser.findText(i, ANCHOR_TABLE_START);
+				TextMatch finderCarried = pdfParser.findText(i, ANCHOR_TABLE_END);
 
-				if (finderBrought.getCount() == 1 && finderCarried.getCount() == 1
-						&& finderBrought.getLly(0) > finderCarried.getLly(0)) {
-					Rectangle2D.Float rect = new Rectangle2D.Float(0, finderCarried.getUry(0) + 1, Float.MAX_VALUE,
-							finderBrought.getLly(0) - finderCarried.getUry(0) - 2);
+				if (finderBrought != null && finderCarried != null
+						&& finderBrought.getBottom() > finderCarried.getBottom()) {
+					Rect rect = new Rect(0f, finderCarried.getTop() + 1, Float.MAX_VALUE,
+							finderBrought.getBottom() - finderCarried.getTop() - 2);
 					// convert the pdf to a table
-					BoundedTableFinder tableFinder = parser.processContent(i, new BoundedTableFinder(rect));
-					StringGrid table = tableFinder.getTable();
+					StringGrid table = pdfParser.findTable(i, rect);
 
 					if (table.size() > 0) {
 						// at this point, every word that has a unique x
@@ -59,24 +63,23 @@ public class HsbcPdfParser implements FileParser {
 						// doesn't form a useful sentence
 
 						// concatenate the date columns
-						RowFinder finderPaimentType = parser.processContent(i, new RowFinder(ANCHOR_PAY_TYPE_DETAILS));
-						table.collapse(0f, finderPaimentType.getLlx(0) - 1);
+						TextMatch finderPaimentType = pdfParser.findText(i, ANCHOR_PAY_TYPE_DETAILS);
+						table.collapse(0f, finderPaimentType.getLeft() - 1);
 
 						// concatenate the name/description columns
-						RowFinder finderPaidOut = parser.processContent(i, new RowFinder(ANCHOR_PAYED_OUT));
-						table.collapse(finderBrought.getLlx(0), finderPaidOut.getLlx(0) - MONEY_COLUMN_LOOKBACK - 1);
+						TextMatch finderPaidOut = pdfParser.findText(i, ANCHOR_PAYED_OUT);
+						table.collapse(finderBrought.getLeft(), finderPaidOut.getLeft() - MONEY_COLUMN_LOOKBACK - 1);
 
 						// concatenate the Paid out columns
-						table.collapse(finderPaidOut.getLlx(0) - MONEY_COLUMN_LOOKBACK,
-								finderPaidOut.getLlx(0) + finderPaidOut.getWidth(0));
+						table.collapse(finderPaidOut.getLeft() - MONEY_COLUMN_LOOKBACK,
+								finderPaidOut.getLeft() + finderPaidOut.getWidth());
 
 						// concatenate the Paid in columns
-						RowFinder finderPaidIn = parser.processContent(i, new RowFinder(ANCHOR_PAYED_IN));
-						table.collapse(finderPaidOut.getLlx(0) + finderPaidOut.getWidth(0) + 1,
-								finderPaidIn.getLlx(0) + finderPaidIn.getWidth(0));
+						TextMatch finderPaidIn = pdfParser.findText(i, ANCHOR_PAYED_IN);
+						table.collapse(finderPaidOut.getRight() + 1, finderPaidIn.getRight());
 
 						// concatenate the Balance columns
-						table.collapse(finderPaidIn.getLlx(0) + finderPaidIn.getWidth(0) + 1, null);
+						table.collapse(finderPaidIn.getLeft() + finderPaidIn.getWidth() + 1, null);
 
 						String description = "";
 
@@ -130,8 +133,7 @@ public class HsbcPdfParser implements FileParser {
 							if (amount != null) {
 								TransactionItem transactionItem = new TransactionItem(currentDate, "H " + description,
 										amount);
-								transactionAggregate.put(transactionItem,
-										new TransactionAggregate(amount, transactionItem));
+								result.add(transactionItem);
 								amount = null;
 								description = "";
 							}
@@ -139,15 +141,16 @@ public class HsbcPdfParser implements FileParser {
 					}
 				}
 			}
-			reader.close();
+			pdfParser.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				reader.close();
+				pdfParser.close();
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 		}
+		return result;
 	}
 }

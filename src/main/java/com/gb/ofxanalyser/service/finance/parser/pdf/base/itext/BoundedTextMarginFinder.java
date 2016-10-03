@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.finance.parser.pdf.hsbc;
+package com.gb.ofxanalyser.service.finance.parser.pdf.base.itext;
 
 import com.itextpdf.awt.geom.Rectangle2D;
 import com.itextpdf.awt.geom.Rectangle2D.Float;
