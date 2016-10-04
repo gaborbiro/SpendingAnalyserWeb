@@ -13,7 +13,7 @@ import com.gb.ofxanalyser.service.finance.parser.Document;
 import com.gb.ofxanalyser.service.finance.parser.TransactionExtractor;
 import com.gb.ofxanalyser.service.finance.parser.ParseException;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
-import com.gb.ofxanalyser.service.finance.parser.hsbc.HsbcParser;
+import com.gb.ofxanalyser.service.finance.parser.hsbc.HsbcPdfParser;
 import com.gb.ofxanalyser.service.finance.parser.ofx.OfxParser;
 import com.gb.ofxanalyser.service.finance.parser.pdf.itext.PdfParserImpl;
 import com.gb.ofxanalyser.service.finance.parser.revolut.RevolutPdfParser;
@@ -95,7 +95,7 @@ public class FinanceService {
 
 		private static TransactionExtractor[] getParsers(Document file) {
 			if (file.title.endsWith("pdf")) {
-				return new TransactionExtractor[] { new HsbcParser(new PdfParserImpl(file)), new RevolutPdfParser() };
+				return new TransactionExtractor[] { new HsbcPdfParser(new PdfParserImpl(file)), new RevolutPdfParser() };
 			} else {
 				return new TransactionExtractor[] { new OfxParser(file) };
 			}

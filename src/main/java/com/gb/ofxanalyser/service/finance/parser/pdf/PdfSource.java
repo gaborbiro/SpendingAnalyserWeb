@@ -2,7 +2,7 @@ package com.gb.ofxanalyser.service.finance.parser.pdf;
 
 import java.io.IOException;
 
-public interface PdfParser {
+public interface PdfSource {
 	public Rect findText(int page, String text) throws IOException;
 
 	public StringGrid findTable(int page, Rect rect) throws IOException;
