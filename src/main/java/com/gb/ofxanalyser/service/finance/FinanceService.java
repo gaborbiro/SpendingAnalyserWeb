@@ -84,6 +84,7 @@ public class FinanceService {
 									.add(new Spending(buffer.toString(), DATE_FORMAT.format(transactionInfo.datePosted),
 											DECIMAL_FORMAT.format(transactionInfo.amount)));
 						}
+						// successfully parsed the file, moving on to the next file 
 						break;
 					} catch (ParseException e) {
 						// nothing to do, just try the next parser

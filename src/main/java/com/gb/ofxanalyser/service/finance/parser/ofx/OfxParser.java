@@ -32,7 +32,11 @@ public class OfxParser implements TransactionExtractor {
 		AggregateUnmarshaller<ResponseEnvelope> unmarshaller = new AggregateUnmarshaller<ResponseEnvelope>(
 				ResponseEnvelope.class);
 		try {
-			ResponseEnvelope response = unmarshaller.unmarshal(new ByteArrayInputStream(file.getContent()));
+			String ofx = new String(file.getContent()).replaceAll(
+					"(</CODE>|</SEVERITY>|</DTSERVER>|</LANGUAGE>|</TRNUID>|</CURDEF>|</BANKID>|</ACCTID>|"
+					+ "</ACCTTYPE>|</DTSTART>|</DTEND>|</TRNTYPE>|</DTPOSTED>|</TRNAMT>|</FITID>|</NAME>|</MEMO>|"
+					+ "</BALAMT>|</DTASOF>)", "");
+			ResponseEnvelope response = unmarshaller.unmarshal(new ByteArrayInputStream(ofx.getBytes()));
 
 			for (ResponseMessageSet set : response.getMessageSets()) {
 				if (set instanceof BankingResponseMessageSet) {
