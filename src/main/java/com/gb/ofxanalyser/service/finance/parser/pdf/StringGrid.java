@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.finance.parser.pdf.base;
+package com.gb.ofxanalyser.service.finance.parser.pdf;
 
 import java.util.ArrayList;
 import java.util.Comparator;

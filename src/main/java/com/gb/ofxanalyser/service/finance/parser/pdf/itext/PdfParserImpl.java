@@ -1,13 +1,11 @@
-package com.gb.ofxanalyser.service.finance.parser.pdf.base.itext;
+package com.gb.ofxanalyser.service.finance.parser.pdf.itext;
 
 import java.io.IOException;
 
 import com.gb.ofxanalyser.service.finance.parser.Document;
-import com.gb.ofxanalyser.service.finance.parser.pdf.base.PdfParser;
-import com.gb.ofxanalyser.service.finance.parser.pdf.base.Rect;
-import com.gb.ofxanalyser.service.finance.parser.pdf.base.StringGrid;
-import com.gb.ofxanalyser.service.finance.parser.pdf.base.TextMatch;
-import com.itextpdf.awt.geom.Rectangle2D;
+import com.gb.ofxanalyser.service.finance.parser.pdf.PdfParser;
+import com.gb.ofxanalyser.service.finance.parser.pdf.Rect;
+import com.gb.ofxanalyser.service.finance.parser.pdf.StringGrid;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 
@@ -25,7 +23,7 @@ public class PdfParserImpl implements PdfParser {
 		}
 	}
 
-	public TextMatch findText(int page, String text) throws IOException {
+	public Rect findText(int page, String text) throws IOException {
 		RowFinder finder = parser.processContent(page, new RowFinder(text));
 		if (finder.getCount() == 0) {
 			return null;
@@ -34,14 +32,12 @@ public class PdfParserImpl implements PdfParser {
 	}
 
 	public StringGrid findTable(int page, Rect rect) throws IOException {
-		Rectangle2D.Float bounds = new Rectangle2D.Float(rect.x, rect.y, rect.width, rect.height);
-		BoundedTableFinder tableFinder = parser.processContent(page, new BoundedTableFinder(bounds));
+		BoundedTableFinder tableFinder = parser.processContent(page, new BoundedTableFinder(rect));
 		return tableFinder.getTable();
 	}
 
-	private static TextMatch getTextMatchFromRowFinder(RowFinder finder, int i) {
-		return new TextMatch(finder.getLlx(i), finder.getLly(i), finder.getUrx(i), finder.getUry(i), finder.getWidth(i),
-				finder.getHeight(i));
+	private static Rect getTextMatchFromRowFinder(RowFinder finder, int i) {
+		return new Rect(finder.getLlx(i), finder.getLly(i), finder.getUrx(i), finder.getUry(i));
 	}
 
 	public int getNumberOfPages() {

@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.finance.parser.pdf.revolut;
+package com.gb.ofxanalyser.service.finance.parser.revolut;
 
 import java.util.List;
 

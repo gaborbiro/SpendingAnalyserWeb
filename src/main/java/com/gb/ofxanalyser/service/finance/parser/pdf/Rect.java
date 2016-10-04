@@ -1,25 +1,22 @@
-package com.gb.ofxanalyser.service.finance.parser.pdf.base;
+package com.gb.ofxanalyser.service.finance.parser.pdf;
 
 /**
- * Cartesian coordinate system. Origo is in the lower left corner
- *
+ * Origo is in the upper bottom corner. <br>
+ * Bottom is smaller than top.<br>
+ * Left is smaller than right.
  */
-public class TextMatch {
+public class Rect {
 
 	private float left;
 	private float bottom;
 	private float right;
 	private float top;
-	private float width;
-	private float height;
 
-	public TextMatch(float left, float bottom, float right, float top, float width, float height) {
+	public Rect(float left, float bottom, float right, float top) {
 		this.left = left;
 		this.bottom = bottom;
 		this.right = right;
 		this.top = top;
-		this.width = width;
-		this.height = height;
 	}
 
 	/**
@@ -29,7 +26,7 @@ public class TextMatch {
 	 */
 	public float getLeft() {
 		return left;
-	};
+	}
 
 	/**
 	 * Getter for the bottom margin.
@@ -38,7 +35,7 @@ public class TextMatch {
 	 */
 	public float getBottom() {
 		return bottom;
-	};
+	}
 
 	/**
 	 * Getter for the right margin.
@@ -47,7 +44,7 @@ public class TextMatch {
 	 */
 	public float getRight() {
 		return right;
-	};
+	}
 
 	/**
 	 * Getter for the top margin.
@@ -56,7 +53,7 @@ public class TextMatch {
 	 */
 	public float getTop() {
 		return top;
-	};
+	}
 
 	/**
 	 * Gets the width of the text block.
@@ -64,8 +61,8 @@ public class TextMatch {
 	 * @return a width
 	 */
 	public float getWidth() {
-		return width;
-	};
+		return right - left;
+	}
 
 	/**
 	 * Gets the height of the text block.
@@ -73,6 +70,11 @@ public class TextMatch {
 	 * @return a height
 	 */
 	public float getHeight() {
-		return height;
+		return top - bottom;
+	}
+
+	@Override
+	public String toString() {
+		return "Rect [left=" + left + ", bottom=" + bottom + ", right=" + right + ", top=" + top + "]";
 	};
 }

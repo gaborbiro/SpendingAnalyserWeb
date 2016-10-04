@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.finance.parser.pdf.base.itext;
+package com.gb.ofxanalyser.service.finance.parser.pdf.itext;
 
 import java.util.ArrayList;
 import java.util.Arrays;

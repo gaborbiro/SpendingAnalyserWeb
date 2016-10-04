@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.finance.parser.pdf.base.itext;
+package com.gb.ofxanalyser.service.finance.parser.pdf.itext;
 
 import com.itextpdf.awt.geom.Rectangle2D;
 import com.itextpdf.awt.geom.Rectangle2D.Float;
