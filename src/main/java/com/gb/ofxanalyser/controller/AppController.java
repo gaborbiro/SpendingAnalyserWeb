@@ -167,7 +167,7 @@ public class AppController {
 			builder.with(documents.get(i).getName(), documents.get(i).getContent());
 		}
 
-		List<Spending> spendings = builder.build().doAggregate();
+		Spending[] spendings = builder.build().doAggregate();
 		model.addAttribute("spendings", spendings);
 
 		return "managedocuments";

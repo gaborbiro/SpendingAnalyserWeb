@@ -4,14 +4,16 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.springframework.stereotype.Service;
 
 import com.gb.ofxanalyser.model.Spending;
 import com.gb.ofxanalyser.service.finance.parser.Document;
-import com.gb.ofxanalyser.service.finance.parser.TransactionExtractor;
 import com.gb.ofxanalyser.service.finance.parser.ParseException;
+import com.gb.ofxanalyser.service.finance.parser.TransactionExtractor;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
 import com.gb.ofxanalyser.service.finance.parser.hsbc.HsbcPdfParser;
 import com.gb.ofxanalyser.service.finance.parser.ofx.OfxParser;
@@ -55,7 +57,7 @@ public class FinanceService {
 		private AggregationPolicy aggregationPolicy;
 		private Document[] files;
 
-		private List<Spending> spendings;
+		private Spending[] spendings;
 
 		private SpendingAggregator(AggregationPolicy aggregationPolicy, Document... files) {
 			this.aggregationPolicy = aggregationPolicy;
@@ -65,8 +67,21 @@ public class FinanceService {
 		/**
 		 * Heavy lifting happens here
 		 */
-		public List<Spending> doAggregate() {
-			spendings = new ArrayList<Spending>();
+		public Spending[] doAggregate() {
+			TreeSet<Spending> spendings = new TreeSet<Spending>(new Comparator<Spending>() {
+
+				@Override
+				public int compare(Spending o1, Spending o2) {
+					int r = o2.getProperDate().compareTo(o1.getProperDate());
+
+					if (r == 0) {
+						return o1.getID().compareTo(o2.getID());
+					} else {
+						return r;
+					}
+				}
+			});
+			int index = 0;
 
 			for (int i = 0; i < files.length; i++) {
 				for (TransactionExtractor parser : getParsers(files[i])) {
@@ -80,29 +95,32 @@ public class FinanceService {
 								buffer.append("\n");
 								buffer.append(transactionInfo.memo);
 							}
-							spendings
-									.add(new Spending(buffer.toString(), DATE_FORMAT.format(transactionInfo.datePosted),
-											DECIMAL_FORMAT.format(transactionInfo.amount)));
+							spendings.add(new Spending(index++, buffer.toString(), transactionInfo.datePosted,
+									DATE_FORMAT.format(transactionInfo.datePosted),
+									DECIMAL_FORMAT.format(transactionInfo.amount)));
 						}
-						// successfully parsed the file, moving on to the next file 
+						// successfully parsed the file, moving on to the next
+						// file
 						break;
 					} catch (ParseException e) {
 						// nothing to do, just try the next parser
 					}
 				}
 			}
-			return spendings;
+			this.spendings = (Spending[]) spendings.toArray(new Spending[spendings.size()]);
+			return this.spendings;
 		}
 
 		private static TransactionExtractor[] getParsers(Document file) {
 			if (file.title.endsWith("pdf")) {
-				return new TransactionExtractor[] { new HsbcPdfParser(new PdfParserImpl(file)), new RevolutPdfParser() };
+				return new TransactionExtractor[] { new HsbcPdfParser(new PdfParserImpl(file)),
+						new RevolutPdfParser() };
 			} else {
 				return new TransactionExtractor[] { new OfxParser(file) };
 			}
 		}
 
-		public List<Spending> getSpendings() {
+		public Spending[] getSpendings() {
 			return spendings;
 		}
 	}
