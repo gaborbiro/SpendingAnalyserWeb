@@ -17,7 +17,6 @@ import com.gb.ofxanalyser.service.finance.parser.TransactionExtractor;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
 import com.gb.ofxanalyser.service.finance.parser.hsbc.HsbcPdfParser;
 import com.gb.ofxanalyser.service.finance.parser.ofx.OfxParser;
-import com.gb.ofxanalyser.service.finance.parser.pdf.itext.PdfParserImpl;
 import com.gb.ofxanalyser.service.finance.parser.revolut.RevolutPdfParser;
 import com.gb.ofxanalyser.util.TextUtils;
 
@@ -84,9 +83,14 @@ public class FinanceService {
 			int index = 0;
 
 			for (int i = 0; i < files.length; i++) {
-				for (TransactionExtractor parser : getParsers(files[i])) {
+				System.out.print("Parsing '" + files[i].title + "'");
+				TransactionExtractor[] parsers = getParsers(files[i]);
+				TransactionExtractor success = null;
+
+				for (int j = 0; j < parsers.length && success == null; j++) {
+					System.out.print(".");
 					try {
-						List<TransactionItem> transactionItems = parser.getTransactions();
+						List<TransactionItem> transactionItems = parsers[j].getTransactions(files[i]);
 
 						for (TransactionItem transactionInfo : transactionItems) {
 							StringBuffer buffer = new StringBuffer();
@@ -99,12 +103,17 @@ public class FinanceService {
 									DATE_FORMAT.format(transactionInfo.datePosted),
 									DECIMAL_FORMAT.format(transactionInfo.amount)));
 						}
-						// successfully parsed the file, moving on to the next
-						// file
-						break;
+						if (!transactionItems.isEmpty()) {
+							success = parsers[j];
+							System.out.println(" success: " + success.getParserName() + " - " + transactionItems.size() + " transactions");
+						}
 					} catch (ParseException e) {
 						// nothing to do, just try the next parser
 					}
+				}
+
+				if (success == null) {
+					System.out.println(" fail");
 				}
 			}
 			this.spendings = (Spending[]) spendings.toArray(new Spending[spendings.size()]);
@@ -113,10 +122,9 @@ public class FinanceService {
 
 		private static TransactionExtractor[] getParsers(Document file) {
 			if (file.title.endsWith("pdf")) {
-				return new TransactionExtractor[] { new HsbcPdfParser(new PdfParserImpl(file)),
-						new RevolutPdfParser() };
+				return new TransactionExtractor[] { new HsbcPdfParser(), new RevolutPdfParser() };
 			} else {
-				return new TransactionExtractor[] { new OfxParser(file) };
+				return new TransactionExtractor[] { new OfxParser() };
 			}
 		}
 

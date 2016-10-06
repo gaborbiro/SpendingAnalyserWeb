@@ -3,14 +3,14 @@ package com.gb.ofxanalyser.service.finance.parser.pdf.itext;
 import java.io.IOException;
 
 import com.gb.ofxanalyser.service.finance.parser.Document;
-import com.gb.ofxanalyser.service.finance.parser.pdf.PdfSource;
+import com.gb.ofxanalyser.service.finance.parser.pdf.PdfParser;
 import com.gb.ofxanalyser.service.finance.parser.pdf.Rect;
 import com.gb.ofxanalyser.service.finance.parser.pdf.StringGrid;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 
-public class PdfParserImpl implements PdfSource {
-
+public class PdfParserImpl implements PdfParser {
+	
 	private PdfReader reader;
 	private PdfReaderContentParser parser;
 

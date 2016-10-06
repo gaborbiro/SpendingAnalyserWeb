@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gb.ofxanalyser.service.finance.parser.Document;
-import com.gb.ofxanalyser.service.finance.parser.TransactionExtractor;
 import com.gb.ofxanalyser.service.finance.parser.ParseException;
+import com.gb.ofxanalyser.service.finance.parser.TransactionExtractor;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
 
 import net.sf.ofx4j.domain.data.ResponseEnvelope;
@@ -21,16 +21,11 @@ import net.sf.ofx4j.io.OFXParseException;
 
 public class OfxParser implements TransactionExtractor {
 
-	private Document file;
-
-	public OfxParser(Document file) {
-		this.file = file;
-	}
-
-	public List<TransactionItem> getTransactions() throws ParseException {
+	public List<TransactionItem> getTransactions(Document file) throws ParseException {
 		List<TransactionItem> result = new ArrayList<TransactionItem>();
 		AggregateUnmarshaller<ResponseEnvelope> unmarshaller = new AggregateUnmarshaller<ResponseEnvelope>(
 				ResponseEnvelope.class);
+		
 		try {
 			String ofx = new String(file.getContent()).replaceAll(
 					"(</CODE>|</SEVERITY>|</DTSERVER>|</LANGUAGE>|</TRNUID>|</CURDEF>|</BANKID>|</ACCTID>|"
@@ -61,5 +56,11 @@ public class OfxParser implements TransactionExtractor {
 			throw new ParseException(e.getMessage());
 		}
 		return result;
+	}
+	
+
+	@Override
+	public String getParserName() {
+		return "OFX Parser";
 	}
 }

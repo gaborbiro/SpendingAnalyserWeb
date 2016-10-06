@@ -18,7 +18,7 @@ public class StringGrid extends Grid<Float, String> {
 	 * Collapse all columns (must specify a concatenation strategy) the index of
 	 * which satisfies: from <= index <= to
 	 */
-	public void collapse(Float from, Float to) {
+	public void collapse(Float from, Float to, String separator) {
 		Comparator<Cell<Float, String>> c = new Comparator<Cell<Float, String>>() {
 
 			public int compare(Cell<Float, String> o1, Cell<Float, String> o2) {
@@ -55,7 +55,7 @@ public class StringGrid extends Grid<Float, String> {
 			}
 			if (rowHead != null) {
 				rowHead.cells.removeAll(toRemove);
-				String newData = data.stream().collect(Collectors.joining(" "));
+				String newData = data.stream().collect(Collectors.joining(separator));
 				Cell<Float, String> newCell = new Cell<Float, String>();
 				newCell.colHead = resultColHeader;
 				newCell.rowHead = rowHead;
