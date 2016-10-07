@@ -22,10 +22,6 @@ public class User {
 	private Integer id;
 
 	@NotEmpty
-	@Column(name="SSO_ID", nullable=false)
-	private String ssoId;
-	
-	@NotEmpty
 	@Column(name="FIRST_NAME", nullable=false)
 	private String firstName;
 
@@ -46,14 +42,6 @@ public class User {
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	public String getSsoId() {
-		return ssoId;
-	}
-
-	public void setSsoId(String ssoId) {
-		this.ssoId = ssoId;
 	}
 
 	public String getFirstName() {
@@ -122,7 +110,7 @@ public class User {
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", ssoId=" + ssoId + ", firstName=" + firstName + ", lastName=" + lastName
+		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName
 				+ ", email=" + email + "]";
 	}
 }

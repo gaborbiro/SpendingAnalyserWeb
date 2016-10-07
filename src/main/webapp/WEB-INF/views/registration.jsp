@@ -17,7 +17,7 @@
 	<div class="well lead">User Registration Form</div>
  	<form:form method="POST" modelAttribute="user" class="form-horizontal">
 		<form:input type="hidden" path="id" id="id"/>
-		<form:input type="hidden" path="email" id="email"/>
+		
 		
 		<div class="row">
 			<div class="form-group col-md-12">
@@ -58,18 +58,6 @@
 							</div>
 						</c:otherwise>
 					</c:choose>
-				</div>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="form-group col-md-12">
-				<label class="col-md-3 control-lable" for="ssoId">SSO ID</label>
-				<div class="col-md-7">
-					<form:input type="text" path="ssoId" id="ssoId" class="form-control input-sm" />
-					<div class="has-error">
-						<form:errors path="ssoId" class="help-inline"/>
-					</div>
 				</div>
 			</div>
 		</div>

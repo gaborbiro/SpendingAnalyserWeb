@@ -95,8 +95,8 @@ public class AppController {
 		}
 
 		/*
-		 * Preferred way to achieve uniqueness of field [sso] should be
-		 * implementing custom @Unique annotation and applying it on field [sso]
+		 * Preferred way to achieve uniqueness of field [email] should be
+		 * implementing custom @Unique annotation and applying it on field [email]
 		 * of Model class [User].
 		 * 
 		 * Below mentioned peace of code [if block] is to demonstrate that you
@@ -147,7 +147,7 @@ public class AppController {
 	}
 
 	/**
-	 * This method will delete an user by it's SSOID value.
+	 * This method will delete an user by it's id.
 	 */
 	@RequestMapping(value = { "/delete-user-{id}" }, method = RequestMethod.GET)
 	public String deleteUser(@PathVariable int id) {

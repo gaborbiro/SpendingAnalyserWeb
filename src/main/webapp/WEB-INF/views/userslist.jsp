@@ -24,7 +24,6 @@
 					        <th>First Name</th>
 					        <th>Last Name</th>
 					        <th>Email</th>
-					        <th>SSO ID</th>
 					        <th width="100"></th>
 					        <th width="100"></th>
 						</tr>
@@ -35,7 +34,6 @@
 							<td>${user.firstName}</td>
 							<td>${user.lastName}</td>
 							<td>${user.email}</td>
-							<td>${user.ssoId}</td>
 							<td><a href="<c:url value='/add-document-${user.id}' />" class="btn btn-success custom-width">files</a>	
 							<td><a href="<c:url value='/edit-user-${user.id}' />" class="btn btn-success custom-width">edit</a></td>
 							<td><a href="<c:url value='/delete-user-${user.id}' />" class="btn btn-danger custom-width">delete</a></td>
