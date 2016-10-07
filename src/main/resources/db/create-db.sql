@@ -10,7 +10,7 @@ create table APP_USER (
    last_name  VARCHAR(30) NOT NULL,
    email VARCHAR(30) NOT NULL,
    PRIMARY KEY (id),
-   UNIQUE (sso_id)
+   UNIQUE (email)
 );
 
 create table USER_DOCUMENT (

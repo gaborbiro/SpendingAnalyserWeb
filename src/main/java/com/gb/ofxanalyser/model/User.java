@@ -22,7 +22,7 @@ public class User {
 	private Integer id;
 
 	@NotEmpty
-	@Column(name="SSO_ID", unique=true, nullable=false)
+	@Column(name="SSO_ID", nullable=false)
 	private String ssoId;
 	
 	@NotEmpty
@@ -34,7 +34,7 @@ public class User {
 	private String lastName;
 
 	@NotEmpty
-	@Column(name="EMAIL", nullable=false)
+	@Column(name="EMAIL", unique=true, nullable=false)
 	private String email;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -94,7 +94,7 @@ public class User {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((ssoId == null) ? 0 : ssoId.hashCode());
+		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		return result;
 	}
 
@@ -112,10 +112,10 @@ public class User {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (ssoId == null) {
-			if (other.ssoId != null)
+		if (email == null) {
+			if (other.email != null)
 				return false;
-		} else if (!ssoId.equals(other.ssoId))
+		} else if (!email.equals(other.email))
 			return false;
 		return true;
 	}
@@ -125,8 +125,4 @@ public class User {
 		return "User [id=" + id + ", ssoId=" + ssoId + ", firstName=" + firstName + ", lastName=" + lastName
 				+ ", email=" + email + "]";
 	}
-
-	
-	
-	
 }

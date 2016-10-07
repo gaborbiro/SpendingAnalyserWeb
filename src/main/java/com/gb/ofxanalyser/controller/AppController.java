@@ -90,7 +90,6 @@ public class AppController {
 	 */
 	@RequestMapping(value = { "/newuser" }, method = RequestMethod.POST)
 	public String saveUser(@Valid User user, BindingResult result, ModelMap model) {
-
 		if (result.hasErrors()) {
 			return "registration";
 		}
@@ -105,10 +104,10 @@ public class AppController {
 		 * still using internationalized messages.
 		 * 
 		 */
-		if (!userService.isUserSSOUnique(user.getId(), user.getSsoId())) {
-			FieldError ssoError = new FieldError("user", "ssoId", messageSource.getMessage("non.unique.ssoId",
-					new String[] { user.getSsoId() }, Locale.getDefault()));
-			result.addError(ssoError);
+		if (!userService.isEmailUnique(user.getId(), user.getEmail())) {
+			FieldError emailError = new FieldError("user", "email", messageSource.getMessage("non.unique.email",
+					new String[] { user.getEmail() }, Locale.getDefault()));
+			result.addError(emailError);
 			return "registration";
 		}
 

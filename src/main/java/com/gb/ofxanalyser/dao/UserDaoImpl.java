@@ -17,10 +17,9 @@ public class UserDaoImpl extends AbstractDao<Integer, User> implements UserDao {
 		return user;
 	}
 
-	public User findBySSO(String sso) {
-		System.out.println("SSO : " + sso);
+	public User findByEmail(String email) {
 		Criteria crit = createEntityCriteria();
-		crit.add(Restrictions.eq("ssoId", sso));
+		crit.add(Restrictions.eq("email", email));
 		User user = (User) crit.uniqueResult();
 		return user;
 	}
@@ -31,7 +30,6 @@ public class UserDaoImpl extends AbstractDao<Integer, User> implements UserDao {
 		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);// To avoid
 																		// duplicates.
 		List<User> users = (List<User>) criteria.list();
-
 		return users;
 	}
 
@@ -45,5 +43,4 @@ public class UserDaoImpl extends AbstractDao<Integer, User> implements UserDao {
 		User user = (User) crit.uniqueResult();
 		delete(user);
 	}
-
 }

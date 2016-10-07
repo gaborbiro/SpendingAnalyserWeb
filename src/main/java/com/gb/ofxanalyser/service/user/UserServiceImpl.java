@@ -9,10 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.gb.ofxanalyser.dao.UserDao;
 import com.gb.ofxanalyser.model.User;
 
-
 @Service("userService")
 @Transactional
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserDao dao;
@@ -21,8 +20,8 @@ public class UserServiceImpl implements UserService{
 		return dao.findById(id);
 	}
 
-	public User findBySSO(String sso) {
-		User user = dao.findBySSO(sso);
+	public User findByEmail(String email) {
+		User user = dao.findByEmail(email);
 		return user;
 	}
 
@@ -31,13 +30,14 @@ public class UserServiceImpl implements UserService{
 	}
 
 	/*
-	 * Since the method is running with Transaction, No need to call hibernate update explicitly.
-	 * Just fetch the entity from db and update it with proper values within transaction.
-	 * It will be updated in db once transaction ends. 
+	 * Since the method is running with Transaction, No need to call hibernate
+	 * update explicitly. Just fetch the entity from db and update it with
+	 * proper values within transaction. It will be updated in db once
+	 * transaction ends.
 	 */
 	public void updateUser(User user) {
 		User entity = dao.findById(user.getId());
-		if(entity!=null){
+		if (entity != null) {
 			entity.setSsoId(user.getSsoId());
 			entity.setFirstName(user.getFirstName());
 			entity.setLastName(user.getLastName());
@@ -46,7 +46,6 @@ public class UserServiceImpl implements UserService{
 		}
 	}
 
-	
 	public void deleteUserById(int id) {
 		dao.deleteById(id);
 	}
@@ -55,9 +54,9 @@ public class UserServiceImpl implements UserService{
 		return dao.findAllUsers();
 	}
 
-	public boolean isUserSSOUnique(Integer id, String sso) {
-		User user = findBySSO(sso);
-		return ( user == null || ((id != null) && (user.getId() == id)));
+	public boolean isEmailUnique(Integer id, String email) {
+		User user = findByEmail(email);
+		return (user == null || ((id != null) && (user.getId() == id)));
 	}
-	
+
 }
