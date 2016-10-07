@@ -29,6 +29,7 @@ import com.gb.ofxanalyser.service.finance.FinanceService;
 import com.gb.ofxanalyser.service.user.UserDocumentService;
 import com.gb.ofxanalyser.service.user.UserService;
 import com.gb.ofxanalyser.util.FileValidator;
+import com.gb.ofxanalyser.util.UserValidator;
 
 @Controller
 @RequestMapping("/")
@@ -47,11 +48,19 @@ public class AppController {
 	FileValidator fileValidator;
 
 	@Autowired
+	UserValidator userValidator;
+
+	@Autowired
 	FinanceService financeService;
 
 	@InitBinder("fileBucket")
-	protected void initBinder(WebDataBinder binder) {
+	protected void initBinderFileBucket(WebDataBinder binder) {
 		binder.setValidator(fileValidator);
+	}
+
+	@InitBinder("user")
+	protected void initBinderUser(WebDataBinder binder) {
+		binder.setValidator(userValidator);
 	}
 
 	/**
