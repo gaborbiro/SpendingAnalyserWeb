@@ -15,7 +15,7 @@ public interface UserService {
 	
 	void updateUser(User user);
 	
-	void deleteUserBySSO(String sso);
+	void deleteUserById(int id);
 
 	List<User> findAllUsers(); 
 	

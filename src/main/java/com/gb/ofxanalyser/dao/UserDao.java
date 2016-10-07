@@ -13,7 +13,7 @@ public interface UserDao {
 	
 	void save(User user);
 	
-	void deleteBySSO(String sso);
+	void deleteById(int id);
 	
 	List<User> findAllUsers();
 

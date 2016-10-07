@@ -39,9 +39,9 @@ public class UserDaoImpl extends AbstractDao<Integer, User> implements UserDao {
 		persist(user);
 	}
 
-	public void deleteBySSO(String sso) {
+	public void deleteById(int id) {
 		Criteria crit = createEntityCriteria();
-		crit.add(Restrictions.eq("ssoId", sso));
+		crit.add(Restrictions.eq("id", id));
 		User user = (User) crit.uniqueResult();
 		delete(user);
 	}

@@ -37,8 +37,8 @@
 							<td>${user.email}</td>
 							<td>${user.ssoId}</td>
 							<td><a href="<c:url value='/add-document-${user.id}' />" class="btn btn-success custom-width">files</a>	
-							<td><a href="<c:url value='/edit-user-${user.ssoId}' />" class="btn btn-success custom-width">edit</a></td>
-							<td><a href="<c:url value='/delete-user-${user.ssoId}' />" class="btn btn-danger custom-width">delete</a></td>
+							<td><a href="<c:url value='/edit-user-${user.id}' />" class="btn btn-success custom-width">edit</a></td>
+							<td><a href="<c:url value='/delete-user-${user.id}' />" class="btn btn-danger custom-width">delete</a></td>
 						</tr>
 					</c:forEach>
 		    		</tbody>
