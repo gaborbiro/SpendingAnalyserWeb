@@ -17,6 +17,7 @@ import com.gb.ofxanalyser.service.finance.parser.TransactionExtractor;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
 import com.gb.ofxanalyser.service.finance.parser.hsbc.HsbcPdfParser;
 import com.gb.ofxanalyser.service.finance.parser.ofx.OfxParser;
+import com.gb.ofxanalyser.service.finance.parser.qif.QIFParser;
 import com.gb.ofxanalyser.service.finance.parser.revolut.RevolutPdfParser;
 import com.gb.ofxanalyser.util.TextUtils;
 
@@ -105,7 +106,8 @@ public class FinanceService {
 						}
 						if (!transactionItems.isEmpty()) {
 							success = parsers[j];
-							System.out.println(" success: " + success.getParserName() + " - " + transactionItems.size() + " transactions");
+							System.out.println(" success: " + success.getParserName() + " - " + transactionItems.size()
+									+ " transactions");
 						}
 					} catch (ParseException e) {
 						// nothing to do, just try the next parser
@@ -123,8 +125,12 @@ public class FinanceService {
 		private static TransactionExtractor[] getParsers(Document file) {
 			if (file.title.endsWith("pdf")) {
 				return new TransactionExtractor[] { new HsbcPdfParser(), new RevolutPdfParser() };
-			} else {
+			} else if (file.title.endsWith("qif")) {
+				return new TransactionExtractor[] { new QIFParser() };
+			} else if (file.title.endsWith("ofx")) {
 				return new TransactionExtractor[] { new OfxParser() };
+			} else {
+				return new TransactionExtractor[0];
 			}
 		}
 
