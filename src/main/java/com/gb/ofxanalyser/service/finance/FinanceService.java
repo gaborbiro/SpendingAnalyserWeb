@@ -94,9 +94,9 @@ public class FinanceService {
 
 						for (TransactionItem transactionInfo : transactionItems) {
 							StringBuffer buffer = new StringBuffer();
-							buffer.append(transactionInfo.name);
+							buffer.append(transactionInfo.payee);
 							if (!TextUtils.isEmpty(transactionInfo.memo)) {
-								buffer.append("\n");
+								buffer.append("<br>");
 								buffer.append(transactionInfo.memo);
 							}
 							spendings.add(new Spending(index++, buffer.toString(), transactionInfo.datePosted,

@@ -36,7 +36,7 @@ public class RevolutPdfParser implements TransactionExtractor {
 	private Rect paidInDelimiter;
 
 	/**
-	 * Don't know where the description column ends and the Paid in/out column
+	 * Don't know where the payee column ends and the Paid in/out column
 	 * starts. Increase this value if there are like 4-5 digit values in the pdf
 	 */
 	private static final int MONEY_COLUMN_LOOKBACK = 20;
@@ -149,7 +149,7 @@ public class RevolutPdfParser implements TransactionExtractor {
 				}
 				break;
 			case 1:
-				// description
+				// payee
 				description = data + " ";
 				break;
 			case 2:
@@ -177,7 +177,7 @@ public class RevolutPdfParser implements TransactionExtractor {
 		}
 
 		if (date != null) {
-			return new TransactionItem(date, "R " + description, amount);
+			return new TransactionItem(date, "R " + description, null, amount);
 		} else {
 			return null;
 		}

@@ -16,6 +16,7 @@ import com.gb.ofxanalyser.service.finance.parser.pdf.PdfParser;
 import com.gb.ofxanalyser.service.finance.parser.pdf.Rect;
 import com.gb.ofxanalyser.service.finance.parser.pdf.StringGrid;
 import com.gb.ofxanalyser.service.finance.parser.pdf.itext.PdfParserImpl;
+import com.gb.ofxanalyser.util.TextUtils;
 import com.gb.ofxanalyser.util.dynagrid.Cell;
 
 public class HsbcPdfParser implements TransactionExtractor {
@@ -29,10 +30,10 @@ public class HsbcPdfParser implements TransactionExtractor {
 	private static final String ANCHOR_PAYED_IN = "Paid in";
 
 	private static final String COLLAPSE_SEPARATOR = " ";
-	
+
 	/**
-	 * Don't know where the description column ends and the Paid in/out column
-	 * starts. Increase this value if there are like 4-5 digit values in the pdf
+	 * Don't know where the payee column ends and the Paid in/out column starts.
+	 * Increase this value if there are like 4-5 digit values in the pdf
 	 */
 	private static final int MONEY_COLUMN_LOOKBACK = 20;
 
@@ -80,7 +81,8 @@ public class HsbcPdfParser implements TransactionExtractor {
 
 				// concatenate the Name/Description columns
 				Rect finderPaidOut = parser.findText(page, ANCHOR_PAYED_OUT);
-				table.collapse(topDelimiter.getLeft(), finderPaidOut.getLeft() - MONEY_COLUMN_LOOKBACK - 1, COLLAPSE_SEPARATOR);
+				table.collapse(topDelimiter.getLeft(), finderPaidOut.getLeft() - MONEY_COLUMN_LOOKBACK - 1,
+						COLLAPSE_SEPARATOR);
 
 				// concatenate the Paid out columns
 				table.collapse(finderPaidOut.getLeft() - MONEY_COLUMN_LOOKBACK,
@@ -101,16 +103,16 @@ public class HsbcPdfParser implements TransactionExtractor {
 
 	private static List<TransactionItem> processTable(int page, StringGrid table, FileContext fileContext) {
 		List<TransactionItem> result = new ArrayList<TransactionItem>();
-		TransactionContext transactionContext = new TransactionContext("", null);
+		TransactionContext transactionContext = new TransactionContext(null, "", null);
 
 		for (Iterator<Iterator<Cell<Float, String>>> rowI = table.iterator(); rowI.hasNext();) {
 			processRow(rowI, fileContext, transactionContext);
 
 			if (transactionContext.amount != null) {
 				TransactionItem transactionItem = new TransactionItem(fileContext.currentDate,
-						"H " + transactionContext.description, transactionContext.amount);
+						"H " + transactionContext.payee, transactionContext.memo, transactionContext.amount);
 				result.add(transactionItem);
-				transactionContext = new TransactionContext("", null);
+				transactionContext = new TransactionContext(null, "", null);
 			}
 		}
 		return result;
@@ -143,8 +145,12 @@ public class HsbcPdfParser implements TransactionExtractor {
 			// don't care
 			break;
 		case 2:
-			// description
-			transactionContext.description += data + " ";
+			// payee
+			if (TextUtils.isEmpty(transactionContext.payee)) {
+				transactionContext.payee = data;
+			} else {
+				transactionContext.memo += data + " ";
+			}
 			break;
 		case 3:
 			// paid out
@@ -182,11 +188,13 @@ public class HsbcPdfParser implements TransactionExtractor {
 	 * span over multiple rows
 	 */
 	private static class TransactionContext {
-		public String description;
+		public String payee;
+		public String memo;
 		public Double amount;
 
-		public TransactionContext(String description, Double amount) {
-			this.description = description;
+		public TransactionContext(String payee, String memo, Double amount) {
+			this.payee = payee;
+			this.memo = memo;
 			this.amount = amount;
 		}
 	}

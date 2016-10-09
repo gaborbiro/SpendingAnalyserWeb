@@ -42,7 +42,7 @@ public class OfxParser implements TransactionExtractor {
 
 						for (Transaction transaction : transactionList.getTransactions()) {
 							TransactionItem transactionItem = new TransactionItem(transaction);
-							transactionItem.name = "O " + transactionItem.name;
+							transactionItem.payee = "O " + transactionItem.payee;
 							result.add(transactionItem);
 						}
 					}
