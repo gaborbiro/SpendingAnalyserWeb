@@ -100,9 +100,10 @@ public class FinanceService {
 								buffer.append("<br>");
 								buffer.append(transactionInfo.memo);
 							}
+
 							spendings.add(new Spending(index++, buffer.toString(), transactionInfo.datePosted,
 									DATE_FORMAT.format(transactionInfo.datePosted),
-									DECIMAL_FORMAT.format(transactionInfo.amount)));
+									DECIMAL_FORMAT.format(transactionInfo.amount), null));
 						}
 						if (!transactionItems.isEmpty()) {
 							success = parsers[j];

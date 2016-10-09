@@ -56,16 +56,16 @@
 						<div class="form-group col-md-12">
 							<label class="col-md-3 control-lable" for="file">Upload a file</label>
 							<div class="col-md-7">
-								<form:input type="file" path="file" id="file" class="form-control input-sm"/>
+								<form:input type="file" path="files" id="files" multiple="multiple" class="form-control input-sm"/>
 								<div class="has-error">
-									<form:errors path="file" class="help-inline"/>
+									<form:errors path="files" class="help-inline"/>
 								</div>
 							</div>
 						</div>
 					</div>
 					<div class="row">
 						<div class="form-group col-md-12">
-							<label class="col-md-3 control-lable" for="file">Description</label>
+							<label class="col-md-3 control-lable" for="files">Description</label>
 							<div class="col-md-7">
 								<form:input type="text" path="description" id="description" class="form-control input-sm"/>
 							</div>
@@ -89,8 +89,9 @@
 		  		<table class="table table-hover">
 		    		<thead>
 			      		<tr>
-					        <th>#</th>
+					        <!-- <th>#</th> -->
 					        <th>Memo|Name</th>
+					        <th>Categories</th>
 					        <th>Date</th>
 					        <th style="text-align: right">Amount</th>
 						</tr>
@@ -98,8 +99,9 @@
 		    		<tbody>
 					<c:forEach items="${spendings}" var="spending" varStatus="counter">
 						<tr>
-							<td>${counter.index + 1}</td>
+							<%-- <td>${counter.index + 1}</td> --%>
 							<td>${spending.description}</td>
+							<td>${spending.categories}</td>
 							<td>${spending.date}</td>
 							<td align="right">${spending.amount}</td>
 						</tr>

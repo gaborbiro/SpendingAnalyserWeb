@@ -96,8 +96,8 @@ public class AppController {
 
 		/*
 		 * Preferred way to achieve uniqueness of field [email] should be
-		 * implementing custom @Unique annotation and applying it on field [email]
-		 * of Model class [User].
+		 * implementing custom @Unique annotation and applying it on field
+		 * [email] of Model class [User].
 		 * 
 		 * Below mentioned peace of code [if block] is to demonstrate that you
 		 * can fill custom errors outside the validation framework as well while
@@ -223,17 +223,18 @@ public class AppController {
 	}
 
 	private void saveDocument(FileBucket fileBucket, User user) throws IOException {
+		UserDocument document = null;
+		MultipartFile[] multipartFiles = fileBucket.getFiles();
 
-		UserDocument document = new UserDocument();
-
-		MultipartFile multipartFile = fileBucket.getFile();
-
-		document.setName(multipartFile.getOriginalFilename());
-		document.setDescription(fileBucket.getDescription());
-		document.setContentType(multipartFile.getContentType());
-		document.setContent(multipartFile.getBytes());
-		document.setUser(user);
-		userDocumentService.saveDocument(document);
+		for (MultipartFile multipartFile : multipartFiles) {
+			document = new UserDocument();
+			document.setName(multipartFile.getOriginalFilename());
+			document.setDescription(fileBucket.getDescription());
+			document.setContentType(multipartFile.getContentType());
+			document.setContent(multipartFile.getBytes());
+			document.setUser(user);
+			userDocumentService.saveDocument(document);
+		}
 	}
 
 }

@@ -16,9 +16,9 @@ public class FileValidator implements Validator {
 	public void validate(Object obj, Errors errors) {
 		FileBucket file = (FileBucket) obj;
 
-		if (file.getFile() != null) {
-			if (file.getFile().getSize() == 0) {
-				errors.rejectValue("file", "missing.file");
+		if (file.getFiles() != null) {
+			if (file.getFiles().length == 0 || file.getFiles()[0].getSize() == 0) {
+				errors.rejectValue("files", "missing.file");
 			}
 		}
 	}

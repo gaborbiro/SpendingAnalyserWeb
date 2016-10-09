@@ -34,53 +34,6 @@ public class QIFParser implements TransactionExtractor {
 	private static final char TOKEN_SPLIT_AMOUNT = '$';
 	private static final char TOKEN_END = '^';
 
-	private class TransactionContext {
-		public Date date;
-		public Double amount;
-		public String payee;
-		public String memo;
-		public List<TransactionContext> split = new ArrayList<TransactionContext>();
-		private TransactionContext currentSplit;
-
-		public TransactionContext getSplitForMemo() {
-			if (currentSplit == null || !TextUtils.isEmpty(currentSplit.memo)) {
-				currentSplit = new TransactionContext();
-				split.add(currentSplit);
-			}
-			return currentSplit;
-		}
-
-		public TransactionContext getSplitForAmount() {
-			if (currentSplit == null || !TextUtils.isEmpty(currentSplit.memo)) {
-				currentSplit = new TransactionContext();
-				split.add(currentSplit);
-			}
-			return currentSplit;
-		}
-
-		public TransactionItem[] getTransactions() {
-			if (split.isEmpty()) {
-				return new TransactionItem[] { new TransactionItem(date, "Q " + payee, memo, amount) };
-			} else {
-				TransactionItem[] result = new TransactionItem[split.size()];
-
-				for (int i = 0; i < split.size(); i++) {
-					result[i] = new TransactionItem(date, "Q " + payee, split.get(i).memo, split.get(i).amount);
-				}
-				return result;
-			}
-		}
-
-		public void reset() {
-			date = null;
-			amount = null;
-			payee = null;
-			memo = null;
-			split = new ArrayList<TransactionContext>();
-			currentSplit = null;
-		}
-	}
-
 	@Override
 	public List<TransactionItem> getTransactions(Document file) throws ParseException {
 		InputStream is = null;
@@ -168,4 +121,50 @@ public class QIFParser implements TransactionExtractor {
 		return "QIF Parser";
 	}
 
+	private class TransactionContext {
+		public Date date;
+		public Double amount;
+		public String payee;
+		public String memo;
+		public List<TransactionContext> split = new ArrayList<TransactionContext>();
+		private TransactionContext currentSplit;
+
+		public TransactionContext getSplitForMemo() {
+			if (currentSplit == null || !TextUtils.isEmpty(currentSplit.memo)) {
+				currentSplit = new TransactionContext();
+				split.add(currentSplit);
+			}
+			return currentSplit;
+		}
+
+		public TransactionContext getSplitForAmount() {
+			if (currentSplit == null || !TextUtils.isEmpty(currentSplit.memo)) {
+				currentSplit = new TransactionContext();
+				split.add(currentSplit);
+			}
+			return currentSplit;
+		}
+
+		public TransactionItem[] getTransactions() {
+			if (split.isEmpty()) {
+				return new TransactionItem[] { new TransactionItem(date, "Q " + payee, memo, amount) };
+			} else {
+				TransactionItem[] result = new TransactionItem[split.size()];
+
+				for (int i = 0; i < split.size(); i++) {
+					result[i] = new TransactionItem(date, "Q " + payee, split.get(i).memo, split.get(i).amount);
+				}
+				return result;
+			}
+		}
+
+		public void reset() {
+			date = null;
+			amount = null;
+			payee = null;
+			memo = null;
+			split = new ArrayList<TransactionContext>();
+			currentSplit = null;
+		}
+	}
 }
