@@ -26,6 +26,7 @@ import com.gb.ofxanalyser.model.Spending;
 import com.gb.ofxanalyser.model.User;
 import com.gb.ofxanalyser.model.UserDocument;
 import com.gb.ofxanalyser.service.finance.FinanceService;
+import com.gb.ofxanalyser.service.finance.parser.categories.CategoryParser;
 import com.gb.ofxanalyser.service.user.UserDocumentService;
 import com.gb.ofxanalyser.service.user.UserService;
 import com.gb.ofxanalyser.util.FileValidator;
@@ -174,6 +175,8 @@ public class AppController {
 
 		Spending[] spendings = builder.build().doAggregate();
 		model.addAttribute("spendings", spendings);
+
+		System.out.println(CategoryParser.readCategories());
 
 		return "managedocuments";
 	}
