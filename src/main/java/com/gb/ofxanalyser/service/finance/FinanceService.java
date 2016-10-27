@@ -16,6 +16,7 @@ import com.gb.ofxanalyser.service.finance.parser.ParseException;
 import com.gb.ofxanalyser.service.finance.parser.TransactionExtractor;
 import com.gb.ofxanalyser.service.finance.parser.TransactionItem;
 import com.gb.ofxanalyser.service.finance.parser.hsbc.HsbcPdfParser;
+import com.gb.ofxanalyser.service.finance.parser.mapping.MappingService;
 import com.gb.ofxanalyser.service.finance.parser.ofx.OfxParser;
 import com.gb.ofxanalyser.service.finance.parser.qif.QIFParser;
 import com.gb.ofxanalyser.service.finance.parser.revolut.RevolutPdfParser;
@@ -83,6 +84,8 @@ public class FinanceService {
 			});
 			int index = 0;
 
+			MappingService mappingDB = new MappingService();
+
 			for (int i = 0; i < files.length; i++) {
 				System.out.print("Parsing '" + files[i].title + "'");
 				TransactionExtractor[] parsers = getParsers(files[i]);
@@ -101,9 +104,13 @@ public class FinanceService {
 								buffer.append(transactionInfo.memo);
 							}
 
-							spendings.add(new Spending(index++, buffer.toString(), transactionInfo.datePosted,
+							String nameMemo = buffer.toString();
+							String category = mappingDB.getCategoryForSpending(nameMemo);
+
+							spendings.add(new Spending(index++, nameMemo, transactionInfo.datePosted,
 									DATE_FORMAT.format(transactionInfo.datePosted),
-									DECIMAL_FORMAT.format(transactionInfo.amount), null));
+									DECIMAL_FORMAT.format(transactionInfo.amount), category,
+									mappingDB.isSubscription(nameMemo)));
 						}
 						if (!transactionItems.isEmpty()) {
 							success = parsers[j];

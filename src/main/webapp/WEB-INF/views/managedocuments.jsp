@@ -1,64 +1,77 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
 <html>
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Upload/Download/Delete Files</title>
-	<link href="<c:url value='/static/css/bootstrap.css' />" rel="stylesheet"></link>
-	<link href="<c:url value='/static/css/app.css' />" rel="stylesheet"></link>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Upload/Download/Delete Files</title>
+<link href="<c:url value='/static/css/bootstrap.css' />"
+	rel="stylesheet"></link>
+<link href="<c:url value='/static/css/app.css' />" rel="stylesheet"></link>
 </head>
 
 <body>
 	<div class="generic-container">
 		<div class="well">
-	 		Go to <a href="<c:url value='/list' />">Users List</a>
-	 	</div>
-		<div class="panel panel-default">
-			  <!-- Default panel contents -->
-		  	<div class="panel-heading"><span class="lead">List of Files</span></div>
-		  	<div class="tablecontainer">
-				<table class="table table-hover">
-		    		<thead>
-			      		<tr>
-					        <th>No.</th>
-					        <th>File Name</th>
-					        <th>Type</th>
-					        <th>Description</th>
-					        <th width="100"></th>
-					        <th width="100"></th>
-						</tr>
-			    	</thead>
-		    		<tbody>
-					<c:forEach items="${documents}" var="doc" varStatus="counter">
-						<tr>
-							<td>${counter.index + 1}</td>
-							<td>${doc.name}</td>
-							<td>${doc.contentType}</td>
-							<td>${doc.description}</td>
-							<td><a href="<c:url value='/download-document-${user.id}-${doc.id}' />" class="btn btn-success custom-width">download</a></td>
-							<td><a href="<c:url value='/delete-document-${user.id}-${doc.id}' />" class="btn btn-danger custom-width">delete</a></td>
-						</tr>
-					</c:forEach>
-		    		</tbody>
-		    	</table>
-		    </div>
+			Go to <a href="<c:url value='/list' />">Users List</a>
 		</div>
 		<div class="panel panel-default">
-			
-			<div class="panel-heading"><span class="lead">Upload New File</span></div>
+			<!-- Default panel contents -->
+			<div class="panel-heading">
+				<span class="lead">List of Files</span>
+			</div>
+			<div class="tablecontainer">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th>No.</th>
+							<th>File Name</th>
+							<th>Type</th>
+							<th>Description</th>
+							<th width="100"></th>
+							<th width="100"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach items="${documents}" var="doc" varStatus="counter">
+							<tr>
+								<td>${counter.index + 1}</td>
+								<td>${doc.name}</td>
+								<td>${doc.contentType}</td>
+								<td>${doc.description}</td>
+								<td><a
+									href="<c:url value='/download-document-${user.id}-${doc.id}' />"
+									class="btn btn-success custom-width">download</a></td>
+								<td><a
+									href="<c:url value='/delete-document-${user.id}-${doc.id}' />"
+									class="btn btn-danger custom-width">delete</a></td>
+							</tr>
+						</c:forEach>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="panel panel-default">
+
+			<div class="panel-heading">
+				<span class="lead">Upload New File</span>
+			</div>
 			<div class="uploadcontainer">
-				<form:form method="POST" modelAttribute="fileBucket" enctype="multipart/form-data" class="form-horizontal">
-			
+				<form:form method="POST" modelAttribute="fileBucket"
+					enctype="multipart/form-data" class="form-horizontal">
+
 					<div class="row">
 						<div class="form-group col-md-12">
-							<label class="col-md-3 control-lable" for="file">Upload a file</label>
+							<label class="col-md-3 control-lable" for="file">Upload a
+								file</label>
 							<div class="col-md-7">
-								<form:input type="file" path="files" id="files" multiple="multiple" class="form-control input-sm"/>
+								<form:input type="file" path="files" id="files"
+									multiple="multiple" class="form-control input-sm" />
 								<div class="has-error">
-									<form:errors path="files" class="help-inline"/>
+									<form:errors path="files" class="help-inline" />
 								</div>
 							</div>
 						</div>
@@ -67,49 +80,62 @@
 						<div class="form-group col-md-12">
 							<label class="col-md-3 control-lable" for="files">Description</label>
 							<div class="col-md-7">
-								<form:input type="text" path="description" id="description" class="form-control input-sm"/>
+								<form:input type="text" path="description" id="description"
+									class="form-control input-sm" />
 							</div>
-							
+
 						</div>
 					</div>
-			
+
 					<div class="row">
 						<div class="form-actions floatRight">
-							<input type="submit" value="Upload" class="btn btn-primary btn-sm">
+							<input type="submit" value="Upload"
+								class="btn btn-primary btn-sm">
 						</div>
 					</div>
-	
+
 				</form:form>
-				</div>
+			</div>
 		</div>
-		
+
 		<div class="panel panel-default">
-		  	<div class="panel-heading"><span class="lead">Transactions</span></div>
-		  	<div class="tablecontainer">
-		  		<table class="table table-hover">
-		    		<thead>
-			      		<tr>
-					        <!-- <th>#</th> -->
-					        <th>Memo|Name</th>
-					        <th>Categories</th>
-					        <th>Date</th>
-					        <th style="text-align: right">Amount</th>
-						</tr>
-			    	</thead>
-		    		<tbody>
-					<c:forEach items="${spendings}" var="spending" varStatus="counter">
+			<div class="panel-heading">
+				<span class="lead">Transactions</span>
+			</div>
+			<div class="tablecontainer">
+				<table class="table table-hover">
+					<thead>
 						<tr>
-							<%-- <td>${counter.index + 1}</td> --%>
-							<td>${spending.description}</td>
-							<td>${spending.categories}</td>
-							<td>${spending.date}</td>
-							<td align="right">${spending.amount}</td>
+							<!-- <th>#</th> -->
+							<th>Memo|Name</th>
+							<th>Category</th>
+							<th>Subscription</th>
+							<th>Date</th>
+							<th style="text-align: right">Amount</th>
 						</tr>
-					</c:forEach>
-		    		</tbody>
-		    	</table>
-		    </div>
+					</thead>
+					<tbody>
+						<c:forEach items="${spendings}" var="spending" varStatus="counter">
+							<tr>
+								<%-- <td>${counter.index + 1}</td> --%>
+								<td>${spending.description}</td>
+								<td>${spending.category}</td>
+								<c:choose>
+									<c:when test="${spending.subscription}">
+										<td>yes</td>	
+									</c:when>
+									<c:otherwise>
+										<td>no</td>
+									</c:otherwise>
+								</c:choose>
+								<td>${spending.date}</td>
+								<td align="right">${spending.amount}</td>
+							</tr>
+						</c:forEach>
+					</tbody>
+				</table>
+			</div>
 		</div>
-   	</div>
+	</div>
 </body>
 </html>

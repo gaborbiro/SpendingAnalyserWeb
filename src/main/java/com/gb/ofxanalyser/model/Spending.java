@@ -1,7 +1,8 @@
 package com.gb.ofxanalyser.model;
 
-import java.util.Arrays;
 import java.util.Date;
+
+import com.gb.ofxanalyser.util.ArrayUtils;
 
 public class Spending {
 
@@ -9,17 +10,20 @@ public class Spending {
 	private String description;
 	private String date;
 	private String amount;
-	private String categories;
+	private String category;
+	private boolean isSubscription;
 
 	private Date properDate;
 
-	public Spending(int ID, String description, Date properDate, String date, String amount, String[] categories) {
+	public Spending(int ID, String description, Date properDate, String date, String amount, String category,
+			boolean isSubscription) {
 		this.ID = ID;
 		this.description = description;
 		this.properDate = properDate;
 		this.date = date;
 		this.amount = amount;
-		this.categories = categories != null ? Arrays.toString(categories) : null;
+		this.category = category;
+		this.isSubscription = isSubscription;
 	}
 
 	public Integer getID() {
@@ -62,11 +66,19 @@ public class Spending {
 		this.amount = amount;
 	}
 
-	public String getCategories() {
-		return categories;
+	public String getCategory() {
+		return category;
 	}
 
-	public void setCategories(String categories) {
-		this.categories = categories;
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public boolean isSubscription() {
+		return isSubscription;
+	}
+
+	public void setSubscription(boolean isSubscription) {
+		this.isSubscription = isSubscription;
 	}
 }
