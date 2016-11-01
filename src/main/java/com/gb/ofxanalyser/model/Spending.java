@@ -2,8 +2,6 @@ package com.gb.ofxanalyser.model;
 
 import java.util.Date;
 
-import com.gb.ofxanalyser.util.ArrayUtils;
-
 public class Spending {
 
 	private Integer ID;
@@ -80,5 +78,11 @@ public class Spending {
 
 	public void setSubscription(boolean isSubscription) {
 		this.isSubscription = isSubscription;
+	}
+
+	@Override
+	public String toString() {
+		return "Spending [ID=" + ID + ", description=" + description + ", date=" + date + ", amount=" + amount
+				+ ", category=" + category + ", isSubscription=" + isSubscription + ", properDate=" + properDate + "]";
 	}
 }

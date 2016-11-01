@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import org.springframework.stereotype.Service;
 
+import com.gb.ofxanalyser.model.Sorting;
 import com.gb.ofxanalyser.model.Spending;
 import com.gb.ofxanalyser.service.finance.parser.Document;
 import com.gb.ofxanalyser.service.finance.parser.ParseException;
@@ -68,12 +69,16 @@ public class FinanceService {
 		/**
 		 * Heavy lifting happens here
 		 */
-		public Spending[] doAggregate() {
+		public Spending[] doAggregate(final Sorting sorting) {
 			TreeSet<Spending> spendings = new TreeSet<Spending>(new Comparator<Spending>() {
 
 				@Override
 				public int compare(Spending o1, Spending o2) {
-					int r = o2.getProperDate().compareTo(o1.getProperDate());
+					int r = 0;
+
+					for (int i = 0; i < sorting.getCount() && r == 0; i++) {
+						r = Sorting.compare(sorting.get(i), o1, o2);
+					}
 
 					if (r == 0) {
 						return o1.getID().compareTo(o2.getID());

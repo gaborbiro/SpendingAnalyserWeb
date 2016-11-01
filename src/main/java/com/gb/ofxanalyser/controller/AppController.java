@@ -19,9 +19,12 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.gb.ofxanalyser.model.FileBucket;
+import com.gb.ofxanalyser.model.Sorting;
 import com.gb.ofxanalyser.model.Spending;
 import com.gb.ofxanalyser.model.User;
 import com.gb.ofxanalyser.model.UserDocument;
@@ -33,6 +36,7 @@ import com.gb.ofxanalyser.util.UserValidator;
 
 @Controller
 @RequestMapping("/")
+@SessionAttributes("sorting")
 public class AppController {
 
 	@Autowired
@@ -155,8 +159,14 @@ public class AppController {
 		return "redirect:/list";
 	}
 
+	private static final String SORT_NAME_MEMO = "memoname";
+	private static final String SORT_CATEGORY = "category";
+	private static final String SORT_IS_SUBSCRIPTION = "subscription";
+	private static final String SORT_DATE = "date";
+	private static final String SORT_AMOUNT = "amount";
+
 	@RequestMapping(value = { "/add-document-{userId}" }, method = RequestMethod.GET)
-	public String addDocuments(@PathVariable int userId, ModelMap model) {
+	public String addDocuments(@PathVariable int userId, ModelMap model, @RequestParam(required = false) String togglesort) {
 		User user = userService.findById(userId);
 		model.addAttribute("user", user);
 
@@ -166,15 +176,47 @@ public class AppController {
 		List<UserDocument> documents = userDocumentService.findAllByUserId(userId);
 		model.addAttribute("documents", documents);
 
+		Sorting sorting = null;
+
+		if (model.containsKey("sorting")) {
+			sorting = (Sorting) model.get("sorting");
+		} else {
+			sorting = new Sorting();
+			sorting.toggleSortByDate();
+			model.addAttribute("sorting", sorting);
+		}
+
+		if (togglesort != null) {
+			switch (togglesort) {
+			case SORT_NAME_MEMO:
+				sorting.toggleSortByNameMemo();
+				break;
+			case SORT_CATEGORY:
+				sorting.toggleSortByCategory();
+				break;
+			case SORT_IS_SUBSCRIPTION:
+				sorting.toggleSortByIsSubscription();
+				break;
+			case SORT_DATE:
+				sorting.toggleSortByDate();
+				break;
+			case SORT_AMOUNT:
+				sorting.toggleSortByAmount();
+				break;
+			default:
+				break;
+			}
+		}
+
 		FinanceService.Builder builder = financeService.builder(null);
 
 		for (int i = 0; i < documents.size(); i++) {
 			builder.with(documents.get(i).getName(), documents.get(i).getContent());
 		}
 
-		Spending[] spendings = builder.build().doAggregate();
+		Spending[] spendings = builder.build().doAggregate(sorting);
 		model.addAttribute("spendings", spendings);
-		
+
 		return "managedocuments";
 	}
 

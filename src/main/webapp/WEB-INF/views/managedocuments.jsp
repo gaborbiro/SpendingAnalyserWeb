@@ -107,11 +107,71 @@
 					<thead>
 						<tr>
 							<!-- <th>#</th> -->
-							<th>Memo|Name</th>
-							<th>Category</th>
-							<th>Subscription</th>
-							<th>Date</th>
-							<th style="text-align: right">Amount</th>
+							<th><a href="<c:url value='/add-document-${user.id}?togglesort=memoname'/>">
+								Memo/Name
+								<c:choose>
+									<c:when test="${sorting.sortByNameMemo == 1}">
+										&uarr;	
+									</c:when>
+									<c:when test="${sorting.sortByNameMemo == -1}">
+										&darr;	
+									</c:when>
+									<c:otherwise>
+									</c:otherwise>
+								</c:choose>
+							</a></th>
+							<th><a href="<c:url value='/add-document-${user.id}?togglesort=category'/>">
+								Category
+								<c:choose>
+									<c:when test="${sorting.sortByCategory == 1}">
+										&uarr;	
+									</c:when>
+									<c:when test="${sorting.sortByCategory == -1}">
+										&darr;	
+									</c:when>
+									<c:otherwise>
+									</c:otherwise>
+								</c:choose>
+							</a></th>
+							<th><a href="<c:url value='/add-document-${user.id}?togglesort=subscription'/>">
+								Subscription
+								<c:choose>
+									<c:when test="${sorting.sortByIsSubscription == 1}">
+										&uarr;	
+									</c:when>
+									<c:when test="${sorting.sortByIsSubscription == -1}">
+										&darr;	
+									</c:when>
+									<c:otherwise>
+									</c:otherwise>
+								</c:choose>
+							</a></th>
+							<th><a href="<c:url value='/add-document-${user.id}?togglesort=date'/>">
+								Date
+								<c:choose>
+									<c:when test="${sorting.sortByDate == 1}">
+										&uarr;	
+									</c:when>
+									<c:when test="${sorting.sortByDate == -1}">
+										&darr;	
+									</c:when>
+									<c:otherwise>
+									</c:otherwise>
+								</c:choose>
+							</a></th>
+							<th style="text-align: right"><a href="<c:url value='/add-document-${user.id}?togglesort=amount'/>">
+								Amount
+								<c:choose>
+									<c:when test="${sorting.sortByAmount == 1}">
+										&uarr;	
+									</c:when>
+									<c:when test="${sorting.sortByAmount == -1}">
+										&darr;	
+									</c:when>
+									<c:otherwise>
+									</c:otherwise>
+								</c:choose>
+							</a></th>
 						</tr>
 					</thead>
 					<tbody>
