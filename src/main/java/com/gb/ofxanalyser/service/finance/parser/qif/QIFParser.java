@@ -5,11 +5,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import com.gb.ofxanalyser.service.finance.parser.Document;
 import com.gb.ofxanalyser.service.finance.parser.ParseException;
@@ -19,7 +20,7 @@ import com.gb.ofxanalyser.util.TextUtils;
 
 public class QIFParser implements TransactionExtractor {
 
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
+	public static final TimeZone GMT_TIME_ZONE = TimeZone.getTimeZone("GMT");
 
 	private static final char TOKEN_TYPE = '!';
 	private static final char TOKEN_DATE = 'D';
@@ -70,10 +71,13 @@ public class QIFParser implements TransactionExtractor {
 
 			break;
 		case TOKEN_DATE:
-			try {
-				context.date = DATE_FORMAT.parse(line);
-			} catch (java.text.ParseException e) {
-			}
+			int year = Integer.parseInt(line.substring(6, 10));
+			int month = Integer.parseInt(line.substring(3, 5)) - 1; // java month numbers are zero-based
+			int day = Integer.parseInt(line.substring(0, 2));
+			// set up a new calendar at zero, then set all the fields.
+			GregorianCalendar calendar = new GregorianCalendar(year, month, day, 0, 0, 0);
+			calendar.setTimeZone(GMT_TIME_ZONE);
+			context.date = calendar.getTime();			
 			break;
 		case TOKEN_AMOUNT1:
 			context.amount = Double.parseDouble(line);
@@ -147,12 +151,12 @@ public class QIFParser implements TransactionExtractor {
 
 		public TransactionItem[] getTransactions() {
 			if (split.isEmpty()) {
-				return new TransactionItem[] { new TransactionItem(date, "Q " + payee, memo, amount) };
+				return new TransactionItem[] { new TransactionItem(date, payee, memo, amount) };
 			} else {
 				TransactionItem[] result = new TransactionItem[split.size()];
 
 				for (int i = 0; i < split.size(); i++) {
-					result[i] = new TransactionItem(date, "Q " + payee, split.get(i).memo, split.get(i).amount);
+					result[i] = new TransactionItem(date, payee, split.get(i).memo, split.get(i).amount);
 				}
 				return result;
 			}

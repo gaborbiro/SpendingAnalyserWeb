@@ -166,7 +166,8 @@ public class AppController {
 	private static final String SORT_AMOUNT = "amount";
 
 	@RequestMapping(value = { "/add-document-{userId}" }, method = RequestMethod.GET)
-	public String addDocuments(@PathVariable int userId, ModelMap model, @RequestParam(required = false) String togglesort) {
+	public String addDocuments(@PathVariable int userId, ModelMap model,
+			@RequestParam(required = false) String togglesort) {
 		User user = userService.findById(userId);
 		model.addAttribute("user", user);
 
@@ -182,26 +183,26 @@ public class AppController {
 			sorting = (Sorting) model.get("sorting");
 		} else {
 			sorting = new Sorting();
-			sorting.toggleSortByDate();
+			sorting.toggleSortByDate(true);
 			model.addAttribute("sorting", sorting);
 		}
 
 		if (togglesort != null) {
 			switch (togglesort) {
 			case SORT_NAME_MEMO:
-				sorting.toggleSortByNameMemo();
+				sorting.toggleSortByNameMemo(true);
 				break;
 			case SORT_CATEGORY:
-				sorting.toggleSortByCategory();
+				sorting.toggleSortByCategory(true);
 				break;
 			case SORT_IS_SUBSCRIPTION:
-				sorting.toggleSortByIsSubscription();
+				sorting.toggleSortByIsSubscription(true);
 				break;
 			case SORT_DATE:
-				sorting.toggleSortByDate();
+				sorting.toggleSortByDate(true);
 				break;
 			case SORT_AMOUNT:
-				sorting.toggleSortByAmount();
+				sorting.toggleSortByAmount(true);
 				break;
 			default:
 				break;

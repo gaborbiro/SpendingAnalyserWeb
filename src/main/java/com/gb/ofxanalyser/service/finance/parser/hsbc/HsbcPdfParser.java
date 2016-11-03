@@ -109,8 +109,8 @@ public class HsbcPdfParser implements TransactionExtractor {
 			processRow(rowI, fileContext, transactionContext);
 
 			if (transactionContext.amount != null) {
-				TransactionItem transactionItem = new TransactionItem(fileContext.currentDate,
-						"H " + transactionContext.payee, transactionContext.memo, transactionContext.amount);
+				TransactionItem transactionItem = new TransactionItem(fileContext.currentDate, transactionContext.payee,
+						transactionContext.memo, transactionContext.amount);
 				result.add(transactionItem);
 				transactionContext = new TransactionContext(null, "", null);
 			}

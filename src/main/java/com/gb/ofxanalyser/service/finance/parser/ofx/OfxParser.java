@@ -25,12 +25,12 @@ public class OfxParser implements TransactionExtractor {
 		List<TransactionItem> result = new ArrayList<TransactionItem>();
 		AggregateUnmarshaller<ResponseEnvelope> unmarshaller = new AggregateUnmarshaller<ResponseEnvelope>(
 				ResponseEnvelope.class);
-		
+
 		try {
-			String ofx = new String(file.getContent()).replaceAll(
-					"(</CODE>|</SEVERITY>|</DTSERVER>|</LANGUAGE>|</TRNUID>|</CURDEF>|</BANKID>|</ACCTID>|"
-					+ "</ACCTTYPE>|</DTSTART>|</DTEND>|</TRNTYPE>|</DTPOSTED>|</TRNAMT>|</FITID>|</NAME>|</MEMO>|"
-					+ "</BALAMT>|</DTASOF>)", "");
+			String ofx = new String(file.getContent())
+					.replaceAll("(</CODE>|</SEVERITY>|</DTSERVER>|</LANGUAGE>|</TRNUID>|</CURDEF>|</BANKID>|</ACCTID>|"
+							+ "</ACCTTYPE>|</DTSTART>|</DTEND>|</TRNTYPE>|</DTPOSTED>|</TRNAMT>|</FITID>|</NAME>|</MEMO>|"
+							+ "</BALAMT>|</DTASOF>)", "");
 			ResponseEnvelope response = unmarshaller.unmarshal(new ByteArrayInputStream(ofx.getBytes()));
 
 			for (ResponseMessageSet set : response.getMessageSets()) {
@@ -42,7 +42,6 @@ public class OfxParser implements TransactionExtractor {
 
 						for (Transaction transaction : transactionList.getTransactions()) {
 							TransactionItem transactionItem = new TransactionItem(transaction);
-							transactionItem.payee = "O " + transactionItem.payee;
 							result.add(transactionItem);
 						}
 					}
@@ -57,7 +56,6 @@ public class OfxParser implements TransactionExtractor {
 		}
 		return result;
 	}
-	
 
 	@Override
 	public String getParserName() {

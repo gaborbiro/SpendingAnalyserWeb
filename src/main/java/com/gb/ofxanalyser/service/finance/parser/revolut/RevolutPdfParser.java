@@ -30,14 +30,14 @@ public class RevolutPdfParser implements TransactionExtractor {
 	private static final String ANCHOR_PAYED_IN = "P a i d I n";
 
 	private static final String COLLAPSE_SEPARATOR = "";
-	
+
 	private Rect referenceDelimiter;
 	private Rect paidOutDelimiter;
 	private Rect paidInDelimiter;
 
 	/**
-	 * Don't know where the payee column ends and the Paid in/out column
-	 * starts. Increase this value if there are like 4-5 digit values in the pdf
+	 * Don't know where the payee column ends and the Paid in/out column starts.
+	 * Increase this value if there are like 4-5 digit values in the pdf
 	 */
 	private static final int MONEY_COLUMN_LOOKBACK = 20;
 
@@ -100,7 +100,8 @@ public class RevolutPdfParser implements TransactionExtractor {
 			table.collapse(0f, referenceDelimiter.getLeft() - 1, COLLAPSE_SEPARATOR);
 
 			// concatenate the Reference columns
-			table.collapse(referenceDelimiter.getLeft(), paidOutDelimiter.getLeft() - MONEY_COLUMN_LOOKBACK - 1, COLLAPSE_SEPARATOR);
+			table.collapse(referenceDelimiter.getLeft(), paidOutDelimiter.getLeft() - MONEY_COLUMN_LOOKBACK - 1,
+					COLLAPSE_SEPARATOR);
 
 			// concatenate the Paid out columns
 			table.collapse(paidOutDelimiter.getLeft() - MONEY_COLUMN_LOOKBACK,
@@ -177,7 +178,7 @@ public class RevolutPdfParser implements TransactionExtractor {
 		}
 
 		if (date != null) {
-			return new TransactionItem(date, "R " + description, null, amount);
+			return new TransactionItem(date, description, null, amount);
 		} else {
 			return null;
 		}

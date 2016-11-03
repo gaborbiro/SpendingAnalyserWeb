@@ -69,22 +69,33 @@ public class FinanceService {
 		/**
 		 * Heavy lifting happens here
 		 */
-		public Spending[] doAggregate(final Sorting sorting) {
+		public Spending[] doAggregate(Sorting sorting) {
+			final Sorting finalSorting = sorting.clone();
+			// Adding attributes that are part of identity, while respecting the
+			// users sorting order. We don't want Spendings with same name to
+			// override each other just because the user is sorting only by name
+			if (finalSorting.isSet(Sorting.SORT_VAL_ASC) == 0) {
+				finalSorting.toggleSortByAmount(false);
+			}
+
+			if (finalSorting.isSet(Sorting.SORT_DAT_ASC) == 0) {
+				finalSorting.toggleSortByDate(false);
+			}
+
+			if (finalSorting.isSet(Sorting.SORT_MEM_ASC) == 0) {
+				finalSorting.toggleSortByNameMemo(false);
+			}
+
 			TreeSet<Spending> spendings = new TreeSet<Spending>(new Comparator<Spending>() {
 
 				@Override
 				public int compare(Spending o1, Spending o2) {
 					int r = 0;
 
-					for (int i = 0; i < sorting.getCount() && r == 0; i++) {
-						r = Sorting.compare(sorting.get(i), o1, o2);
+					for (int i = 0; i < finalSorting.getCount() && r == 0; i++) {
+						r = Sorting.compare(finalSorting.get(i), o1, o2);
 					}
-
-					if (r == 0) {
-						return o1.getID().compareTo(o2.getID());
-					} else {
-						return r;
-					}
+					return r;
 				}
 			});
 			int index = 0;
@@ -113,7 +124,7 @@ public class FinanceService {
 							String category = mappingDB.getCategoryForSpending(nameMemo);
 
 							spendings.add(new Spending(index++, nameMemo, transactionInfo.datePosted,
-									DATE_FORMAT.format(transactionInfo.datePosted),
+									DATE_FORMAT.format(transactionInfo.datePosted), transactionInfo.amount,
 									DECIMAL_FORMAT.format(transactionInfo.amount), category,
 									mappingDB.isSubscription(nameMemo)));
 						}
