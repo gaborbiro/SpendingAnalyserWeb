@@ -7,40 +7,40 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
-import com.gb.ofxanalyser.model.User;
+import com.gb.ofxanalyser.model.be.UserBE;
 
 @Repository("userDao")
-public class UserDaoImpl extends AbstractDao<Integer, User> implements UserDao {
+public class UserDaoImpl extends AbstractDao<Integer, UserBE> implements UserDao {
 
-	public User findById(int id) {
-		User user = getByKey(id);
+	public UserBE findById(int id) {
+		UserBE user = getByKey(id);
 		return user;
 	}
 
-	public User findByEmail(String email) {
+	public UserBE findByEmail(String email) {
 		Criteria crit = createEntityCriteria();
 		crit.add(Restrictions.eq("email", email));
-		User user = (User) crit.uniqueResult();
+		UserBE user = (UserBE) crit.uniqueResult();
 		return user;
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<User> findAllUsers() {
+	public List<UserBE> findAllUsers() {
 		Criteria criteria = createEntityCriteria().addOrder(Order.asc("firstName"));
 		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);// To avoid
 																		// duplicates.
-		List<User> users = (List<User>) criteria.list();
+		List<UserBE> users = (List<UserBE>) criteria.list();
 		return users;
 	}
 
-	public void save(User user) {
+	public void save(UserBE user) {
 		persist(user);
 	}
 
 	public void deleteById(int id) {
 		Criteria crit = createEntityCriteria();
 		crit.add(Restrictions.eq("id", id));
-		User user = (User) crit.uniqueResult();
+		UserBE user = (UserBE) crit.uniqueResult();
 		delete(user);
 	}
 }

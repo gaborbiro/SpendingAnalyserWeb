@@ -2,17 +2,17 @@ package com.gb.ofxanalyser.dao;
 
 import java.util.List;
 
-import com.gb.ofxanalyser.model.UserDocument;
+import com.gb.ofxanalyser.model.be.UserDocumentBE;
 
 public interface UserDocumentDao {
 
-	List<UserDocument> findAll();
+	List<UserDocumentBE> findAll();
 	
-	UserDocument findById(int id);
+	UserDocumentBE findById(int id);
 	
-	void save(UserDocument document);
+	void save(UserDocumentBE document);
 	
-	List<UserDocument> findAllByUserId(int userId);
+	List<UserDocumentBE> findAllByUserId(int userId);
 	
 	void deleteById(int id);
 }

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import com.gb.ofxanalyser.model.FileBucket;
+import com.gb.ofxanalyser.model.fe.FileBucket;
 
 @Component
 public class FileValidator implements Validator {

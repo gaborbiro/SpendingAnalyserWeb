@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gb.ofxanalyser.dao.UserDao;
-import com.gb.ofxanalyser.model.User;
+import com.gb.ofxanalyser.model.be.UserBE;
 
 @Service("userService")
 @Transactional
@@ -16,32 +16,30 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserDao dao;
 
-	public User findById(int id) {
+	public UserBE findById(int id) {
 		return dao.findById(id);
 	}
 
-	public User findByEmail(String email) {
-		User user = dao.findByEmail(email);
-		return user;
+	public UserBE findByEmail(String email) {
+		return dao.findByEmail(email);
 	}
 
-	public void saveUser(User user) {
+	public void saveUser(UserBE user) {
 		dao.save(user);
 	}
 
 	/*
-	 * Since the method is running with Transaction, No need to call hibernate
+	 * Since the method is running with TransactionBE, No need to call hibernate
 	 * update explicitly. Just fetch the entity from db and update it with
 	 * proper values within transaction. It will be updated in db once
 	 * transaction ends.
 	 */
-	public void updateUser(User user) {
-		User entity = dao.findById(user.getId());
+	public void updateUser(UserBE user) {
+		UserBE entity = dao.findById(user.getId());
 		if (entity != null) {
 			entity.setFirstName(user.getFirstName());
 			entity.setLastName(user.getLastName());
 			entity.setEmail(user.getEmail());
-			entity.setUserDocuments(user.getUserDocuments());
 		}
 	}
 
@@ -49,13 +47,12 @@ public class UserServiceImpl implements UserService {
 		dao.deleteById(id);
 	}
 
-	public List<User> findAllUsers() {
+	public List<UserBE> findAllUsers() {
 		return dao.findAllUsers();
 	}
 
 	public boolean isEmailUnique(Integer id, String email) {
-		User user = findByEmail(email);
+		UserBE user = findByEmail(email);
 		return (user == null || ((id != null) && (user.getId() == id)));
 	}
-
 }

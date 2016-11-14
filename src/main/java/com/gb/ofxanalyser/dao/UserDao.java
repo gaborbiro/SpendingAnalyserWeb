@@ -2,20 +2,20 @@ package com.gb.ofxanalyser.dao;
 
 import java.util.List;
 
-import com.gb.ofxanalyser.model.User;
+import com.gb.ofxanalyser.model.be.UserBE;
 
 
 public interface UserDao {
 
-	User findById(int id);
+	UserBE findById(int id);
 	
-	User findByEmail(String email);
+	UserBE findByEmail(String email);
 	
-	void save(User user);
+	void save(UserBE user);
 	
 	void deleteById(int id);
 	
-	List<User> findAllUsers();
+	List<UserBE> findAllUsers();
 
 }
 

@@ -7,33 +7,29 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gb.ofxanalyser.dao.UserDocumentDao;
-import com.gb.ofxanalyser.model.UserDocument;
+import com.gb.ofxanalyser.model.be.UserDocumentBE;
 
 @Service("userDocumentService")
 @Transactional
-public class UserDocumentServiceImpl implements UserDocumentService{
+public class UserDocumentServiceImpl implements UserDocumentService {
 
 	@Autowired
 	UserDocumentDao dao;
 
-	public UserDocument findById(int id) {
+	public UserDocumentBE findById(int id) {
 		return dao.findById(id);
 	}
 
-	public List<UserDocument> findAll() {
-		return dao.findAll();
-	}
-
-	public List<UserDocument> findAllByUserId(int userId) {
+	public List<UserDocumentBE> findAllByUserId(int userId) {
 		return dao.findAllByUserId(userId);
 	}
-	
-	public void saveDocument(UserDocument document){
+
+	public void saveDocument(UserDocumentBE document) {
 		dao.save(document);
 	}
 
-	public void deleteById(int id){
+	public void deleteById(int id) {
 		dao.deleteById(id);
 	}
-	
+
 }

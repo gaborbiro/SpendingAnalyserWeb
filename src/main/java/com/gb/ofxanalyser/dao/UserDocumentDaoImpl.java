@@ -6,35 +6,35 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
-import com.gb.ofxanalyser.model.UserDocument;
+import com.gb.ofxanalyser.model.be.UserDocumentBE;
 
 @Repository("userDocumentDao")
-public class UserDocumentDaoImpl extends AbstractDao<Integer, UserDocument> implements UserDocumentDao {
+public class UserDocumentDaoImpl extends AbstractDao<Integer, UserDocumentBE> implements UserDocumentDao {
 
 	@SuppressWarnings("unchecked")
-	public List<UserDocument> findAll() {
+	public List<UserDocumentBE> findAll() {
 		Criteria crit = createEntityCriteria();
-		return (List<UserDocument>) crit.list();
+		return (List<UserDocumentBE>) crit.list();
 	}
 
-	public void save(UserDocument document) {
+	public void save(UserDocumentBE document) {
 		persist(document);
 	}
 
-	public UserDocument findById(int id) {
+	public UserDocumentBE findById(int id) {
 		return getByKey(id);
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<UserDocument> findAllByUserId(int userId) {
+	public List<UserDocumentBE> findAllByUserId(int userId) {
 		Criteria crit = createEntityCriteria();
 		Criteria userCriteria = crit.createCriteria("user");
 		userCriteria.add(Restrictions.eq("id", userId));
-		return (List<UserDocument>) crit.list();
+		return (List<UserDocumentBE>) crit.list();
 	}
 
 	public void deleteById(int id) {
-		UserDocument document = getByKey(id);
+		UserDocumentBE document = getByKey(id);
 		delete(document);
 	}
 

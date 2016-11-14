@@ -1,17 +1,17 @@
 package com.gb.ofxanalyser.controller;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -21,14 +21,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.gb.ofxanalyser.model.FileBucket;
-import com.gb.ofxanalyser.model.Sorting;
-import com.gb.ofxanalyser.model.Spending;
-import com.gb.ofxanalyser.model.User;
-import com.gb.ofxanalyser.model.UserDocument;
-import com.gb.ofxanalyser.service.finance.FinanceService;
+import com.gb.ofxanalyser.model.Translator;
+import com.gb.ofxanalyser.model.be.UserBE;
+import com.gb.ofxanalyser.model.be.UserDocumentBE;
+import com.gb.ofxanalyser.model.fe.FileBucket;
+import com.gb.ofxanalyser.model.fe.HistorySorting;
+import com.gb.ofxanalyser.model.fe.TransactionFE;
+import com.gb.ofxanalyser.model.fe.UserFE;
+import com.gb.ofxanalyser.model.fe.base.Sorting;
+import com.gb.ofxanalyser.service.categories.CategorisationService;
+import com.gb.ofxanalyser.service.finance.TransactionsService;
+import com.gb.ofxanalyser.service.user.TransactionService;
 import com.gb.ofxanalyser.service.user.UserDocumentService;
 import com.gb.ofxanalyser.service.user.UserService;
 import com.gb.ofxanalyser.util.FileValidator;
@@ -46,6 +50,9 @@ public class AppController {
 	UserDocumentService userDocumentService;
 
 	@Autowired
+	TransactionService transactionService;
+
+	@Autowired
 	MessageSource messageSource;
 
 	@Autowired
@@ -55,7 +62,10 @@ public class AppController {
 	UserValidator userValidator;
 
 	@Autowired
-	FinanceService financeService;
+	TransactionsService transactionsService;
+
+	@Autowired
+	CategorisationService categorisationService;
 
 	@InitBinder("fileBucket")
 	protected void initBinderFileBucket(WebDataBinder binder) {
@@ -72,8 +82,7 @@ public class AppController {
 	 */
 	@RequestMapping(value = { "/", "/list" }, method = RequestMethod.GET)
 	public String listUsers(ModelMap model) {
-		List<User> users = userService.findAllUsers();
-		model.addAttribute("users", users);
+		model.addAttribute("users", Translator.get(userService.findAllUsers()));
 		return "userslist";
 	}
 
@@ -82,7 +91,7 @@ public class AppController {
 	 */
 	@RequestMapping(value = { "/newuser" }, method = RequestMethod.GET)
 	public String newUser(ModelMap model) {
-		User user = new User();
+		UserFE user = new UserFE();
 		model.addAttribute("user", user);
 		model.addAttribute("edit", false);
 		return "registration";
@@ -93,7 +102,7 @@ public class AppController {
 	 * saving user in database. It also validates the user input
 	 */
 	@RequestMapping(value = { "/newuser" }, method = RequestMethod.POST)
-	public String saveUser(@Valid User user, BindingResult result, ModelMap model) {
+	public String saveUser(@Valid UserFE user, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
 			return "registration";
 		}
@@ -101,7 +110,7 @@ public class AppController {
 		/*
 		 * Preferred way to achieve uniqueness of field [email] should be
 		 * implementing custom @Unique annotation and applying it on field
-		 * [email] of Model class [User].
+		 * [email] of Model class [UserBE].
 		 * 
 		 * Below mentioned peace of code [if block] is to demonstrate that you
 		 * can fill custom errors outside the validation framework as well while
@@ -115,9 +124,10 @@ public class AppController {
 			return "registration";
 		}
 
-		userService.saveUser(user);
+		UserBE userBE = Translator.get(user);
+		userService.saveUser(userBE);
 
-		model.addAttribute("user", user);
+		model.addAttribute("user", Translator.get(userBE));
 		model.addAttribute("success",
 				"User " + user.getFirstName() + " " + user.getLastName() + " registered successfully");
 		// return "success";
@@ -129,8 +139,8 @@ public class AppController {
 	 */
 	@RequestMapping(value = { "/edit-user-{id}" }, method = RequestMethod.GET)
 	public String editUser(@PathVariable int id, ModelMap model) {
-		User user = userService.findById(id);
-		model.addAttribute("user", user);
+		UserBE user = userService.findById(id);
+		model.addAttribute("user", Translator.get(user));
 		model.addAttribute("edit", true);
 		return "registration";
 	}
@@ -140,11 +150,11 @@ public class AppController {
 	 * updating user in database. It also validates the user input
 	 */
 	@RequestMapping(value = { "/edit-user-{id}" }, method = RequestMethod.POST)
-	public String updateUser(@Valid User user, BindingResult result, ModelMap model) {
+	public String updateUser(@Valid UserFE user, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
 			return "registration";
 		}
-		userService.updateUser(user);
+		userService.updateUser(Translator.get(user));
 		model.addAttribute("success",
 				"User " + user.getFirstName() + " " + user.getLastName() + " updated successfully");
 		return "registrationsuccess";
@@ -168,70 +178,123 @@ public class AppController {
 	@RequestMapping(value = { "/add-document-{userId}" }, method = RequestMethod.GET)
 	public String addDocuments(@PathVariable int userId, ModelMap model,
 			@RequestParam(required = false) String togglesort) {
-		User user = userService.findById(userId);
-		model.addAttribute("user", user);
+		UserBE user = userService.findById(userId);
+
+		if (user == null) {
+			return "redirect:/list";
+		}
+
+		model.addAttribute("user", Translator.get(user));
 
 		FileBucket fileModel = new FileBucket();
 		model.addAttribute("fileBucket", fileModel);
 
-		List<UserDocument> documents = userDocumentService.findAllByUserId(userId);
-		model.addAttribute("documents", documents);
+		List<UserDocumentBE> documents = userDocumentService.findAllByUserId(userId);
+		model.addAttribute("documents", Translator.get(documents));
 
-		Sorting sorting = null;
+		HistorySorting sorting = null;
 
 		if (model.containsKey("sorting")) {
-			sorting = (Sorting) model.get("sorting");
+			sorting = (HistorySorting) model.get("sorting");
 		} else {
-			sorting = new Sorting();
-			sorting.toggleSortByDate(true);
+			sorting = HistorySorting.getSortingByDate();
 			model.addAttribute("sorting", sorting);
 		}
 
 		if (togglesort != null) {
 			switch (togglesort) {
 			case SORT_NAME_MEMO:
-				sorting.toggleSortByNameMemo(true);
+				sorting.toggle(HistorySorting.CRIT_MEM_ASC, true);
 				break;
 			case SORT_CATEGORY:
-				sorting.toggleSortByCategory(true);
+				sorting.toggle(HistorySorting.CRIT_CAT_ASC, true);
 				break;
 			case SORT_IS_SUBSCRIPTION:
-				sorting.toggleSortByIsSubscription(true);
+				sorting.toggle(HistorySorting.CRIT_SUB_ASC, true);
 				break;
 			case SORT_DATE:
-				sorting.toggleSortByDate(true);
+				sorting.toggle(HistorySorting.CRIT_DAT_ASC, true);
 				break;
 			case SORT_AMOUNT:
-				sorting.toggleSortByAmount(true);
+				sorting.toggle(HistorySorting.CRIT_VAL_ASC, true);
 				break;
 			default:
 				break;
 			}
 		}
 
-		FinanceService.Builder builder = financeService.builder(null);
+		// // Adding attributes that are part of identity, while respecting the
+		// // users sorting order. We don't want Transactions with same name to
+		// // override each other just because the user is sorting only by name
+		// HistorySorting finalSorting = new HistorySorting(sorting);
+		// if (finalSorting.isSet(HistorySorting.CRIT_VAL_ASC) == 0) {
+		// finalSorting.toggle(HistorySorting.CRIT_VAL_ASC, false);
+		// }
+		//
+		// if (finalSorting.isSet(HistorySorting.CRIT_DAT_ASC) == 0) {
+		// finalSorting.toggle(HistorySorting.CRIT_DAT_ASC, false);
+		// }
+		//
+		// if (finalSorting.isSet(HistorySorting.CRIT_MEM_ASC) == 0) {
+		// finalSorting.toggle(HistorySorting.CRIT_MEM_ASC, false);
+		// }
 
-		for (int i = 0; i < documents.size(); i++) {
-			builder.with(documents.get(i).getName(), documents.get(i).getContent());
+		List<TransactionFE> transactions = Translator.get(transactionService.findAllByUserId(userId, sorting));
+
+		for (TransactionFE transaction : transactions) {
+			transaction.setCategory(categorisationService.getCategoryForTransaction(transaction.getDescription()));
+			transaction.setSubscription(categorisationService.isSubscription(transaction.getDescription()));
 		}
 
-		Spending[] spendings = builder.build().doAggregate(sorting);
-		model.addAttribute("spendings", spendings);
+		Comparator<TransactionFE> comparator = null;
+
+		if (sorting.getCount() > 0) {
+			switch (sorting.get(0)) {
+			case HistorySorting.CRIT_CAT_ASC:
+				comparator = new Comparator<TransactionFE>() {
+
+					@Override
+					public int compare(TransactionFE transaction1, TransactionFE transaction2) {
+						return Sorting.compare(transaction1.getCategory(), transaction2.getCategory());
+					}
+				};
+				break;
+			case HistorySorting.CRIT_CAT_DSC:
+				comparator = new Comparator<TransactionFE>() {
+
+					@Override
+					public int compare(TransactionFE transaction1, TransactionFE transaction2) {
+						return Sorting.compare(transaction2.getCategory(), transaction1.getCategory());
+					}
+				};
+				break;
+			case HistorySorting.CRIT_SUB_ASC:
+				comparator = new Comparator<TransactionFE>() {
+
+					@Override
+					public int compare(TransactionFE transaction1, TransactionFE transaction2) {
+						return Sorting.compare(transaction1.isSubscription(), transaction2.isSubscription());
+					}
+				};
+				break;
+			case HistorySorting.CRIT_SUB_DSC:
+				comparator = new Comparator<TransactionFE>() {
+
+					@Override
+					public int compare(TransactionFE transaction1, TransactionFE transaction2) {
+						return Sorting.compare(transaction2.isSubscription(), transaction2.isSubscription());
+					}
+				};
+				break;
+			}
+		}
+		if (comparator != null) {
+			Collections.sort(transactions, comparator);
+		}
+
+		model.addAttribute("transactions", transactions);
 
 		return "managedocuments";
-	}
-
-	@RequestMapping(value = { "/download-document-{userId}-{docId}" }, method = RequestMethod.GET)
-	public String downloadDocument(@PathVariable int userId, @PathVariable int docId, HttpServletResponse response)
-			throws IOException {
-		UserDocument document = userDocumentService.findById(docId);
-		response.setContentType(document.getContentType());
-		response.setContentLength(document.getContent().length);
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + document.getName() + "\"");
-
-		FileCopyUtils.copy(document.getContent(), response.getOutputStream());
-
-		return "redirect:/add-document-" + userId;
 	}
 
 	@RequestMapping(value = { "/delete-document-{userId}-{docId}" }, method = RequestMethod.GET)
@@ -243,41 +306,29 @@ public class AppController {
 	@RequestMapping(value = { "/add-document-{userId}" }, method = RequestMethod.POST)
 	public String uploadDocument(@Valid FileBucket fileBucket, BindingResult result, ModelMap model,
 			@PathVariable int userId) throws IOException {
+		UserBE user = userService.findById(userId);
+		model.addAttribute("user", Translator.get(user));
 
 		if (result.hasErrors()) {
-			System.out.println("validation errors");
-			User user = userService.findById(userId);
-			model.addAttribute("user", user);
-
-			List<UserDocument> documents = userDocumentService.findAllByUserId(userId);
-			model.addAttribute("documents", documents);
-
+			List<UserDocumentBE> documents = userDocumentService.findAllByUserId(userId);
+			model.addAttribute("documents", Translator.get(documents));
 			return "managedocuments";
 		} else {
-			System.out.println("Fetching file");
-
-			User user = userService.findById(userId);
-			model.addAttribute("user", user);
-
-			saveDocument(fileBucket, user);
-
+			transactionsService.processDocuments(user, fileBucket);
 			return "redirect:/add-document-" + userId;
 		}
 	}
 
-	private void saveDocument(FileBucket fileBucket, User user) throws IOException {
-		UserDocument document = null;
-		MultipartFile[] multipartFiles = fileBucket.getFiles();
+	/**
+	 * This method will provide the medium to update an existing user.
+	 */
+	@RequestMapping(value = { "/stats-{id}" }, method = RequestMethod.GET)
+	public String stats(@PathVariable int id, ModelMap model) {
+		UserBE user = userService.findById(id);
+		model.addAttribute("user", Translator.get(user));
 
-		for (MultipartFile multipartFile : multipartFiles) {
-			document = new UserDocument();
-			document.setName(multipartFile.getOriginalFilename());
-			document.setDescription(fileBucket.getDescription());
-			document.setContentType(multipartFile.getContentType());
-			document.setContent(multipartFile.getBytes());
-			document.setUser(user);
-			userDocumentService.saveDocument(document);
-		}
+		List<TransactionFE> transactions = Translator.get(transactionService.findAllByUserId(id, null));
+		model.addAttribute("transactions", transactions);
+		return "stats";
 	}
-
 }
