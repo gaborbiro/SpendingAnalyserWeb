@@ -37,5 +37,4 @@ public class UserDocumentDaoImpl extends AbstractDao<Integer, UserDocumentBE> im
 		UserDocumentBE document = getByKey(id);
 		delete(document);
 	}
-
 }

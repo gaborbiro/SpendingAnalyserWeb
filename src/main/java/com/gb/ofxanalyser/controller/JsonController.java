@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gb.ofxanalyser.model.Translator;
-import com.gb.ofxanalyser.model.fe.UserFE;
+import com.gb.ofxanalyser.model.fe.User;
 import com.gb.ofxanalyser.service.user.UserService;
 
 @Controller
@@ -20,7 +20,7 @@ public class JsonController {
 	UserService userService;
 
 	@RequestMapping(value = { "/users" }, method = RequestMethod.GET)
-	public @ResponseBody List<UserFE> listUsersInJSON() {
+	public @ResponseBody List<User> listUsersInJSON() {
 		return Translator.get(userService.findAllUsers());
 	}
 }

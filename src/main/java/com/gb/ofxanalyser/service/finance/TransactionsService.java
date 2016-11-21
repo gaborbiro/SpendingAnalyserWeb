@@ -34,11 +34,13 @@ public class TransactionsService {
 	@Autowired
 	TransactionService transactionService;
 
-	public void processDocuments(UserBE user, FileBucket fileBucket) throws IOException {
+	public String processDocuments(UserBE user, FileBucket fileBucket) throws IOException {
 		UserDocumentBE document = null;
 		MultipartFile[] multipartFiles = fileBucket.getFiles();
+		StringBuffer buffer = new StringBuffer();
 
 		for (MultipartFile multipartFile : multipartFiles) {
+			int transactionCount = 0;
 			document = new UserDocumentBE();
 			document.setName(multipartFile.getOriginalFilename());
 			document.setDescription(fileBucket.getDescription());
@@ -51,14 +53,29 @@ public class TransactionsService {
 			for (TransactionBE transaction : transactions) {
 				try {
 					transactionService.saveTransaction(transaction);
+					transactionCount++;
 				} catch (ConstraintViolationException e) {
 					// ignoring duplicates
 					if (e.getSQLException() instanceof MySQLIntegrityConstraintViolationException) {
-						System.out.println("Duplicate: " + transaction.getDescription());
+						if (e.getSQLException().getMessage().contains("Duplicate")) {
+							System.out.println("Duplicate: " + transaction.getDescription());
+						} else {
+							throw e;
+						}
 					}
 				}
 			}
+
+			if (transactionCount == 0) {
+				userDocumentService.deleteById(document.getId());
+				if (buffer.length() == 0) {
+					buffer.append("No new transactions found in: ");
+				}
+				buffer.append(multipartFile.getOriginalFilename());
+				buffer.append(" ");
+			}
 		}
+		return buffer.toString();
 	}
 
 	/**
@@ -71,7 +88,7 @@ public class TransactionsService {
 		FilesParser.Builder<FileEntry> builder = FilesParser.builder(new ParserFactoryImpl());
 		builder.with(file);
 
-		TransactionsSink transactionsSink = new TransactionsSink(user);
+		TransactionsSink transactionsSink = new TransactionsSink(user, document);
 		builder.sink(transactionsSink);
 
 		PeriodsSink periodsSink = new PeriodsSink();
@@ -94,9 +111,11 @@ public class TransactionsService {
 
 		private Set<TransactionBE> transactions;
 		private UserBE user;
+		private UserDocumentBE document;
 
-		public TransactionsSink(UserBE user) {
+		public TransactionsSink(UserBE user, UserDocumentBE document) {
 			this.user = user;
+			this.document = document;
 			transactions = new LinkedHashSet<>();
 		}
 
@@ -116,6 +135,7 @@ public class TransactionsService {
 			transaction.setDate(entry.datePosted.getTime());
 			transaction.setAmount(entry.amount * 100);
 			transaction.setUser(user);
+			transaction.setDocumentId(document.getId());
 			transactions.add(transaction);
 		}
 

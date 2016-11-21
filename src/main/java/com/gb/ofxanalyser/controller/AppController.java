@@ -28,7 +28,7 @@ import com.gb.ofxanalyser.model.be.UserDocumentBE;
 import com.gb.ofxanalyser.model.fe.FileBucket;
 import com.gb.ofxanalyser.model.fe.HistorySorting;
 import com.gb.ofxanalyser.model.fe.TransactionFE;
-import com.gb.ofxanalyser.model.fe.UserFE;
+import com.gb.ofxanalyser.model.fe.User;
 import com.gb.ofxanalyser.model.fe.base.Sorting;
 import com.gb.ofxanalyser.service.categories.CategorisationService;
 import com.gb.ofxanalyser.service.finance.TransactionsService;
@@ -36,6 +36,7 @@ import com.gb.ofxanalyser.service.user.TransactionService;
 import com.gb.ofxanalyser.service.user.UserDocumentService;
 import com.gb.ofxanalyser.service.user.UserService;
 import com.gb.ofxanalyser.util.FileValidator;
+import com.gb.ofxanalyser.util.TextUtils;
 import com.gb.ofxanalyser.util.UserValidator;
 
 @Controller
@@ -69,12 +70,12 @@ public class AppController {
 
 	@InitBinder("fileBucket")
 	protected void initBinderFileBucket(WebDataBinder binder) {
-		binder.setValidator(fileValidator);
+		binder.addValidators(fileValidator);
 	}
 
 	@InitBinder("user")
 	protected void initBinderUser(WebDataBinder binder) {
-		binder.setValidator(userValidator);
+		binder.addValidators(userValidator);
 	}
 
 	/**
@@ -91,7 +92,7 @@ public class AppController {
 	 */
 	@RequestMapping(value = { "/newuser" }, method = RequestMethod.GET)
 	public String newUser(ModelMap model) {
-		UserFE user = new UserFE();
+		User user = new User();
 		model.addAttribute("user", user);
 		model.addAttribute("edit", false);
 		return "registration";
@@ -102,7 +103,7 @@ public class AppController {
 	 * saving user in database. It also validates the user input
 	 */
 	@RequestMapping(value = { "/newuser" }, method = RequestMethod.POST)
-	public String saveUser(@Valid UserFE user, BindingResult result, ModelMap model) {
+	public String saveUser(@Valid User user, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
 			return "registration";
 		}
@@ -126,11 +127,10 @@ public class AppController {
 
 		UserBE userBE = Translator.get(user);
 		userService.saveUser(userBE);
-
 		model.addAttribute("user", Translator.get(userBE));
+
 		model.addAttribute("success",
 				"User " + user.getFirstName() + " " + user.getLastName() + " registered successfully");
-		// return "success";
 		return "registrationsuccess";
 	}
 
@@ -150,7 +150,7 @@ public class AppController {
 	 * updating user in database. It also validates the user input
 	 */
 	@RequestMapping(value = { "/edit-user-{id}" }, method = RequestMethod.POST)
-	public String updateUser(@Valid UserFE user, BindingResult result, ModelMap model) {
+	public String updateUser(@Valid User user, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
 			return "registration";
 		}
@@ -312,11 +312,16 @@ public class AppController {
 		if (result.hasErrors()) {
 			List<UserDocumentBE> documents = userDocumentService.findAllByUserId(userId);
 			model.addAttribute("documents", Translator.get(documents));
-			return "managedocuments";
 		} else {
-			transactionsService.processDocuments(user, fileBucket);
-			return "redirect:/add-document-" + userId;
+			String warning = transactionsService.processDocuments(user, fileBucket);
+
+			addDocuments(userId, model, null);
+
+			if (!TextUtils.isEmpty(warning)) {
+				model.addAttribute("fileReject", warning);
+			}
 		}
+		return "managedocuments";
 	}
 
 	/**

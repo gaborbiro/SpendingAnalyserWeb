@@ -1,10 +1,18 @@
 package com.gb.ofxanalyser.model.fe;
 
-public class UserFE {
-	private Integer id;
-	private String firstName;
-	private String lastName;
-	private String email;
+import org.hibernate.validator.constraints.NotEmpty;
+
+public class User {
+	Integer id;
+	
+	@NotEmpty
+	String firstName;
+	
+	@NotEmpty
+	String lastName;
+	
+	@NotEmpty
+	String email;
 
 	public Integer getId() {
 		return id;
@@ -40,6 +48,6 @@ public class UserFE {
 
 	@Override
 	public String toString() {
-		return "UserFE [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + "]";
+		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + "]";
 	}
 }

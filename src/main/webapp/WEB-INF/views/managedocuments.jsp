@@ -83,6 +83,21 @@
 
 					<div class="row">
 						<div class="form-group col-md-12">
+							<c:choose>
+								<c:when test="${not empty fileReject}">
+									<label class="col-md-3 control-lable"></label>
+									<div class="col-md-7">
+										<div class="has-error lead">${fileReject}</div>
+									</div>
+								</c:when>
+								<c:otherwise>
+								</c:otherwise>
+							</c:choose>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="form-group col-md-12">
 							<label class="col-md-3 control-lable" for="file">Upload a
 								file</label>
 							<div class="col-md-7">
@@ -101,7 +116,6 @@
 								<form:input type="text" path="description" id="description"
 									class="form-control input-sm" />
 							</div>
-
 						</div>
 					</div>
 

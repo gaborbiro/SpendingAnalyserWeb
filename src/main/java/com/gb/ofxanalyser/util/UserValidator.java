@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import com.gb.ofxanalyser.model.fe.UserFE;
+import com.gb.ofxanalyser.model.fe.User;
 
 /**
  * Note: empty fields are automatically validated. This class is for fancier
@@ -18,12 +18,12 @@ public class UserValidator implements Validator {
 
 	@Override
 	public boolean supports(Class<?> clazz) {
-		return UserFE.class.isAssignableFrom(clazz);
+		return User.class.isAssignableFrom(clazz);
 	}
 
 	@Override
 	public void validate(Object target, Errors errors) {
-		UserFE user = (UserFE) target;
+		User user = (User) target;
 
 		if (!user.getEmail().matches(EMAIL_PATTERN)) {
 			errors.rejectValue("email", "invalid.email");

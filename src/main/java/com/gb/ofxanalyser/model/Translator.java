@@ -14,7 +14,7 @@ import com.gb.ofxanalyser.model.be.UserBE;
 import com.gb.ofxanalyser.model.be.UserDocumentBE;
 import com.gb.ofxanalyser.model.fe.TransactionFE;
 import com.gb.ofxanalyser.model.fe.UserDocumentFE;
-import com.gb.ofxanalyser.model.fe.UserFE;
+import com.gb.ofxanalyser.model.fe.User;
 
 @SuppressWarnings("rawtypes")
 public class Translator {
@@ -65,8 +65,8 @@ public class Translator {
 		return userDocumentFE;
 	}
 
-	public static UserFE get(UserBE userBE) {
-		UserFE userFE = new UserFE();
+	public static User get(UserBE userBE) {
+		User userFE = new User();
 		userFE.setId(userBE.getId());
 		userFE.setFirstName(userBE.getFirstName());
 		userFE.setLastName(userBE.getLastName());
@@ -74,7 +74,7 @@ public class Translator {
 		return userFE;
 	}
 
-	public static UserBE get(UserFE userFE) {
+	public static UserBE get(User userFE) {
 		UserBE userBE = new UserBE();
 		userBE.setId(userFE.getId());
 		userBE.setFirstName(userFE.getFirstName());

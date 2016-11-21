@@ -40,6 +40,9 @@ public class TransactionBE implements Comparable<TransactionBE> {
 	// @JoinColumn(name = "document_id")
 	// private UserDocumentBE userDocument;
 
+	@Column(name = "document_id")
+	private Integer documentId;
+
 	public String getId() {
 		return id;
 	}
@@ -83,6 +86,14 @@ public class TransactionBE implements Comparable<TransactionBE> {
 	// public void setUserDocument(UserDocumentBE userDocument) {
 	// this.userDocument = userDocument;
 	// }
+
+	public Integer getDocumentId() {
+		return documentId;
+	}
+
+	public void setDocumentId(Integer documentId) {
+		this.documentId = documentId;
+	}
 
 	@Override
 	public int hashCode() {

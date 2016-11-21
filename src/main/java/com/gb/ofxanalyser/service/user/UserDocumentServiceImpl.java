@@ -31,5 +31,4 @@ public class UserDocumentServiceImpl implements UserDocumentService {
 	public void deleteById(int id) {
 		dao.deleteById(id);
 	}
-
 }
