@@ -57,14 +57,6 @@ public class HistorySorting extends Sorting {
 		return isSet(CRIT_VAL_ASC);
 	}
 
-	@Override
-	public void toggle(int criteria, boolean priority) {
-		super.toggle(criteria, priority);
-		if (getCount() > 1) {
-			remove(getCount() - 1);
-		}
-	}
-
 	public static int compare(int criteria, TransactionFE transaction1, TransactionFE transaction2) {
 		switch (criteria) {
 		case CRIT_MEM_ASC:

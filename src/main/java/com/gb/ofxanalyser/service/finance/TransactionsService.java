@@ -16,6 +16,7 @@ import com.gb.ofxanalyser.model.be.TransactionBE;
 import com.gb.ofxanalyser.model.be.UserBE;
 import com.gb.ofxanalyser.model.be.UserDocumentBE;
 import com.gb.ofxanalyser.model.fe.FileBucket;
+import com.gb.ofxanalyser.service.categories.CategorisationService;
 import com.gb.ofxanalyser.service.file.FilesParser;
 import com.gb.ofxanalyser.service.file.parser.FileContent;
 import com.gb.ofxanalyser.service.file.parser.FileEntry;
@@ -33,6 +34,9 @@ public class TransactionsService {
 
 	@Autowired
 	TransactionService transactionService;
+
+	@Autowired
+	CategorisationService categorisationService;
 
 	public String processDocuments(UserBE user, FileBucket fileBucket) throws IOException {
 		UserDocumentBE document = null;
@@ -136,6 +140,8 @@ public class TransactionsService {
 			transaction.setAmount(entry.amount * 100);
 			transaction.setUser(user);
 			transaction.setDocumentId(document.getId());
+			transaction.setCategory(categorisationService.getCategoryForTransaction(nameMemo));
+			transaction.setIsSubscription((byte) (categorisationService.isSubscription(nameMemo) ? 1 : 0));
 			transactions.add(transaction);
 		}
 

@@ -1,8 +1,6 @@
 package com.gb.ofxanalyser.controller;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,7 +27,6 @@ import com.gb.ofxanalyser.model.fe.FileBucket;
 import com.gb.ofxanalyser.model.fe.HistorySorting;
 import com.gb.ofxanalyser.model.fe.TransactionFE;
 import com.gb.ofxanalyser.model.fe.User;
-import com.gb.ofxanalyser.model.fe.base.Sorting;
 import com.gb.ofxanalyser.service.categories.CategorisationService;
 import com.gb.ofxanalyser.service.finance.TransactionsService;
 import com.gb.ofxanalyser.service.user.TransactionService;
@@ -64,9 +61,6 @@ public class AppController {
 
 	@Autowired
 	TransactionsService transactionsService;
-
-	@Autowired
-	CategorisationService categorisationService;
 
 	@InitBinder("fileBucket")
 	protected void initBinderFileBucket(WebDataBinder binder) {
@@ -223,74 +217,12 @@ public class AppController {
 			}
 		}
 
-		// // Adding attributes that are part of identity, while respecting the
-		// // users sorting order. We don't want Transactions with same name to
-		// // override each other just because the user is sorting only by name
-		// HistorySorting finalSorting = new HistorySorting(sorting);
-		// if (finalSorting.isSet(HistorySorting.CRIT_VAL_ASC) == 0) {
-		// finalSorting.toggle(HistorySorting.CRIT_VAL_ASC, false);
-		// }
-		//
-		// if (finalSorting.isSet(HistorySorting.CRIT_DAT_ASC) == 0) {
-		// finalSorting.toggle(HistorySorting.CRIT_DAT_ASC, false);
-		// }
-		//
-		// if (finalSorting.isSet(HistorySorting.CRIT_MEM_ASC) == 0) {
-		// finalSorting.toggle(HistorySorting.CRIT_MEM_ASC, false);
-		// }
-
 		List<TransactionFE> transactions = Translator.get(transactionService.findAllByUserId(userId, sorting));
 
-		for (TransactionFE transaction : transactions) {
-			transaction.setCategory(categorisationService.getCategoryForTransaction(transaction.getDescription()));
-			transaction.setSubscription(categorisationService.isSubscription(transaction.getDescription()));
-		}
-
-		Comparator<TransactionFE> comparator = null;
-
-		if (sorting.getCount() > 0) {
-			switch (sorting.get(0)) {
-			case HistorySorting.CRIT_CAT_ASC:
-				comparator = new Comparator<TransactionFE>() {
-
-					@Override
-					public int compare(TransactionFE transaction1, TransactionFE transaction2) {
-						return Sorting.compare(transaction1.getCategory(), transaction2.getCategory());
-					}
-				};
-				break;
-			case HistorySorting.CRIT_CAT_DSC:
-				comparator = new Comparator<TransactionFE>() {
-
-					@Override
-					public int compare(TransactionFE transaction1, TransactionFE transaction2) {
-						return Sorting.compare(transaction2.getCategory(), transaction1.getCategory());
-					}
-				};
-				break;
-			case HistorySorting.CRIT_SUB_ASC:
-				comparator = new Comparator<TransactionFE>() {
-
-					@Override
-					public int compare(TransactionFE transaction1, TransactionFE transaction2) {
-						return Sorting.compare(transaction1.isSubscription(), transaction2.isSubscription());
-					}
-				};
-				break;
-			case HistorySorting.CRIT_SUB_DSC:
-				comparator = new Comparator<TransactionFE>() {
-
-					@Override
-					public int compare(TransactionFE transaction1, TransactionFE transaction2) {
-						return Sorting.compare(transaction2.isSubscription(), transaction2.isSubscription());
-					}
-				};
-				break;
-			}
-		}
-		if (comparator != null) {
-			Collections.sort(transactions, comparator);
-		}
+		// for (TransactionFE transaction : transactions) {
+		// transaction.setCategory(categorisationService.getCategoryForTransaction(transaction.getDescription()));
+		// transaction.setSubscription(categorisationService.isSubscription(transaction.getDescription()));
+		// }
 
 		model.addAttribute("transactions", transactions);
 

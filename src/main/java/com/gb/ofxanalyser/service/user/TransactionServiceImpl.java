@@ -25,12 +25,12 @@ public class TransactionServiceImpl implements TransactionService {
 		if (sorting != null) {
 			for (int i = 0; i < sorting.getCount(); i++) {
 				switch (sorting.get(i)) {
-				// case HistorySorting.CRIT_CAT_ASC:
-				//
-				// break;
-				// case HistorySorting.CRIT_CAT_DSC:
-				//
-				// break;
+				case HistorySorting.CRIT_CAT_ASC:
+					orders.add(Order.asc(TransactionBE.CATEGORY));
+					break;
+				case HistorySorting.CRIT_CAT_DSC:
+					orders.add(Order.desc(TransactionBE.CATEGORY));
+					break;
 				case HistorySorting.CRIT_DAT_ASC:
 					orders.add(Order.asc(TransactionBE.DATE));
 					break;
@@ -43,12 +43,12 @@ public class TransactionServiceImpl implements TransactionService {
 				case HistorySorting.CRIT_MEM_DSC:
 					orders.add(Order.desc(TransactionBE.DESCRIPTION));
 					break;
-				// case HistorySorting.CRIT_SUB_ASC:
-				//
-				// break;
-				// case HistorySorting.CRIT_SUB_DSC:
-				//
-				// break;
+				case HistorySorting.CRIT_SUB_ASC:
+					orders.add(Order.asc(TransactionBE.IS_SUBSCRIPTION));
+					break;
+				case HistorySorting.CRIT_SUB_DSC:
+					orders.add(Order.desc(TransactionBE.IS_SUBSCRIPTION));
+					break;
 				case HistorySorting.CRIT_VAL_ASC:
 					orders.add(Order.asc(TransactionBE.AMOUNT));
 					break;

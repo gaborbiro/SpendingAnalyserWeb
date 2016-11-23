@@ -18,6 +18,8 @@ public class TransactionBE implements Comparable<TransactionBE> {
 	public static final String DESCRIPTION = "description";
 	public static final String DATE = "date_";
 	public static final String AMOUNT = "amount";
+	public static final String CATEGORY = "category";
+	public static final String IS_SUBSCRIPTION = "is_subscription";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -42,6 +44,12 @@ public class TransactionBE implements Comparable<TransactionBE> {
 
 	@Column(name = "document_id")
 	private Integer documentId;
+
+	@Column(name = CATEGORY)
+	private String category;
+
+	@Column(name = IS_SUBSCRIPTION)
+	private byte isSubscription;
 
 	public String getId() {
 		return id;
@@ -93,6 +101,22 @@ public class TransactionBE implements Comparable<TransactionBE> {
 
 	public void setDocumentId(Integer documentId) {
 		this.documentId = documentId;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public byte getIsSubscription() {
+		return isSubscription;
+	}
+
+	public void setIsSubscription(byte isSubscription) {
+		this.isSubscription = isSubscription;
 	}
 
 	@Override

@@ -32,6 +32,8 @@ create table TRANSACTION (
    description VARCHAR(255) NOT NULL,
    date_ BIGINT NOT NULL,
    amount BIGINT NOT NULL,
+   category VARCHAR(255),
+   is_subscription TINYINT(1),
    PRIMARY KEY (id),
    CONSTRAINT transaction_user FOREIGN KEY (user_id) REFERENCES APP_USER (id) ON UPDATE CASCADE ON DELETE CASCADE,
    CONSTRAINT transaction_document FOREIGN KEY (document_id) REFERENCES USER_DOCUMENT (id) ON UPDATE CASCADE ON DELETE CASCADE

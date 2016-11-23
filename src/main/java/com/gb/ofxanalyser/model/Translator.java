@@ -47,6 +47,8 @@ public class Translator {
 		transactionFE.setDescription(transactionBE.getDescription());
 		transactionFE.setDate(DATE_FORMAT.format(new Date(transactionBE.getDate())));
 		transactionFE.setAmount(DECIMAL_FORMAT.format(transactionBE.getAmount() / 100));
+		transactionFE.setCategory(transactionBE.getCategory());
+		transactionFE.setSubscription(transactionBE.getIsSubscription() == 1 ? true : false);
 		return transactionFE;
 	}
 

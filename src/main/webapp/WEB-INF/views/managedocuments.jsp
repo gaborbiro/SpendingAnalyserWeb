@@ -143,11 +143,11 @@
 								href="<c:url value='/add-document-${user.id}?togglesort=memoname'/>">
 									Memo/Name <c:choose>
 										<c:when test="${sorting.sortByNameMemo > 0}">
-											<%-- ${sorting.sortByNameMemo} --%>
+											${sorting.sortByNameMemo}
 										&uarr;	
 										</c:when>
 										<c:when test="${sorting.sortByNameMemo < 0}">
-											<%-- ${-sorting.sortByNameMemo} --%>
+											${-sorting.sortByNameMemo}
 										&darr;	
 										</c:when>
 										<c:otherwise>
@@ -158,11 +158,11 @@
 								href="<c:url value='/add-document-${user.id}?togglesort=category'/>">
 									Category<c:choose>
 										<c:when test="${sorting.sortByCategory > 0}">
-											<%-- ${sorting.sortByCategory} --%>
+											${sorting.sortByCategory}
 										&uarr;	
 										</c:when>
 										<c:when test="${sorting.sortByCategory < 0}">
-											<%-- ${-sorting.sortByCategory} --%>
+											${-sorting.sortByCategory}
 										&darr;	
 										</c:when>
 										<c:otherwise>
@@ -173,11 +173,11 @@
 								href="<c:url value='/add-document-${user.id}?togglesort=subscription'/>">
 									Subscription<c:choose>
 										<c:when test="${sorting.sortByIsSubscription > 0}">
-											<%-- ${sorting.sortByIsSubscription} --%>
+											${sorting.sortByIsSubscription}
 										&uarr;	
 										</c:when>
 										<c:when test="${sorting.sortByIsSubscription < 0}">
-											<%-- ${-sorting.sortByIsSubscription} --%>
+											${-sorting.sortByIsSubscription}
 										&darr;	
 										</c:when>
 										<c:otherwise>
@@ -188,11 +188,11 @@
 								href="<c:url value='/add-document-${user.id}?togglesort=date'/>">
 									Date<c:choose>
 										<c:when test="${sorting.sortByDate > 0}">
-											<%-- ${sorting.sortByDate} --%>
+											${sorting.sortByDate}
 										&uarr;	
 										</c:when>
 										<c:when test="${sorting.sortByDate < 0}">
-											<%-- ${-sorting.sortByDate} --%>
+											${-sorting.sortByDate}
 										&darr;	
 										</c:when>
 										<c:otherwise>
@@ -203,11 +203,11 @@
 								href="<c:url value='/add-document-${user.id}?togglesort=amount'/>">
 									Amount<c:choose>
 										<c:when test="${sorting.sortByAmount > 0}">
-											<%-- ${sorting.sortByAmount} --%>
+											${sorting.sortByAmount}
 										&uarr;	
 										</c:when>
 										<c:when test="${sorting.sortByAmount < 0}">
-											<%-- ${-sorting.sortByAmount} --%>
+											${-sorting.sortByAmount}
 										&darr;	
 										</c:when>
 										<c:otherwise>
