@@ -7,11 +7,17 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>User Registration Form</title>
-<link href="<c:url value='/static/css/bootstrap.css' />"
+<link href="<c:url value='/static/css/bootstrap.min.css' />"
 	rel="stylesheet"></link>
 <link href="<c:url value='/static/css/app.css' />" rel="stylesheet"></link>
 </head>
 <body>
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script src="js/bootstrap.min.js"></script>
+	
 	<div class="generic-container">
 		<div class="well lead">User Registration Form</div>
 		<form:form method="POST" modelAttribute="user" class="form-horizontal">

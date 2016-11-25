@@ -14,6 +14,7 @@ import com.gb.ofxanalyser.model.be.UserBE;
 import com.gb.ofxanalyser.model.be.UserDocumentBE;
 import com.gb.ofxanalyser.model.fe.TransactionFE;
 import com.gb.ofxanalyser.model.fe.UserDocumentFE;
+import com.gb.ofxanalyser.util.TextUtils;
 import com.gb.ofxanalyser.model.fe.User;
 
 @SuppressWarnings("rawtypes")
@@ -21,6 +22,8 @@ public class Translator {
 
 	private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MMM/yy");
 	private static NumberFormat DECIMAL_FORMAT = DecimalFormat.getCurrencyInstance();
+
+	private static String CATEGORY_UNKNOWN = "Unknown";
 
 	public static <R> List<R> get(List list) {
 		if (list == null) {
@@ -45,9 +48,10 @@ public class Translator {
 	public static TransactionFE get(TransactionBE transactionBE) {
 		TransactionFE transactionFE = new TransactionFE();
 		transactionFE.setDescription(transactionBE.getDescription());
-		transactionFE.setDate(DATE_FORMAT.format(new Date(transactionBE.getDate())));
+		transactionFE.setDate(DATE_FORMAT.format(new Date(transactionBE.getDate().getTime())));
 		transactionFE.setAmount(DECIMAL_FORMAT.format(transactionBE.getAmount() / 100));
-		transactionFE.setCategory(transactionBE.getCategory());
+		String category = transactionBE.getCategory();
+		transactionFE.setCategory(TextUtils.isEmpty(category) ? CATEGORY_UNKNOWN : category);
 		transactionFE.setSubscription(transactionBE.getIsSubscription() == 1 ? true : false);
 		return transactionFE;
 	}

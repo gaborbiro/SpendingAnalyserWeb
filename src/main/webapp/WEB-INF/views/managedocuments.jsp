@@ -6,29 +6,14 @@
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Transaction History</title>
-<link href="<c:url value='/static/css/bootstrap.css' />"
-	rel="stylesheet"></link>
-<link href="<c:url value='/static/css/app.css' />" rel="stylesheet"></link>
-<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-<script src="/static/js/jquery.cookie.js"></script>
-<script type="text/javascript">
-	$(document).ready(function() {
-		$(function() {
-			//			window.alert("1");
-			//			window.alert("start " + $.cookie("top"));
-			//			window.alert("2");
-			var top = parseInt($.cookie("top"));
-			window.alert("top:" + top);
-			if (top)
-				$(document).scrollTop(top);
-			$(document).scroll(function() {
-				var top = $(document).scrollTop();
-				$.cookie("top", top);
-			})
-		});
-	});
-</script>
+<link href="<c:url value='/static/css/bootstrap.min.css' />"
+	rel="stylesheet" />
+<link href="<c:url value='/static/css/app.css' />" rel="stylesheet" />
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="static/js/bootstrap.min.js"></script>
 </head>
 
 <body>
@@ -40,11 +25,12 @@
 		<div class="panel panel-default">
 			<!-- Default panel contents -->
 			<div class="panel-heading">
-				<span class="lead">List of Files</span>
+				<span class="lead"><a data-toggle="collapse"
+					href="#documents">Documents</a></span>
 			</div>
-			<div class="tablecontainer">
+			<div id="documents" class="tablecontainer collapse in">
 				<a href="#table"></a>
-				<table class="table table-hover">
+				<table class="table table-hover table-condensed ">
 					<thead>
 						<tr>
 							<th>No.</th>
@@ -72,12 +58,13 @@
 				</table>
 			</div>
 		</div>
-		<div class="panel panel-default">
 
+		<div class="panel panel-default">
 			<div class="panel-heading">
-				<span class="lead">Upload New File</span>
+				<span class="lead"><a data-toggle="collapse" href="#upload">Upload
+						New File</a></span>
 			</div>
-			<div class="uploadcontainer">
+			<div id="upload" class="uploadcontainer collapse in">
 				<form:form method="POST" modelAttribute="fileBucket"
 					enctype="multipart/form-data" class="form-horizontal">
 
@@ -132,10 +119,11 @@
 
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<span class="lead">Transactions</span>
+				<span class="lead"><a data-toggle="collapse"
+					href="#transactions">Transactions</a></span>
 			</div>
-			<div class="tablecontainer">
-				<table class="table table-hover" id="anchor">
+			<div id="transactions" class="tablecontainer collapse in">
+				<table class="table table-hover table-condensed table-responsive">
 					<thead>
 						<tr>
 							<!-- <th>#</th> -->

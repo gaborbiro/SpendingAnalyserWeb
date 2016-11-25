@@ -1,6 +1,7 @@
 package com.gb.ofxanalyser.service.finance;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -136,7 +137,7 @@ public class TransactionsService {
 
 			TransactionBE transaction = new TransactionBE();
 			transaction.setDescription(nameMemo);
-			transaction.setDate(entry.datePosted.getTime());
+			transaction.setDate(new Date(entry.datePosted.getTime()));
 			transaction.setAmount(entry.amount * 100);
 			transaction.setUser(user);
 			transaction.setDocumentId(document.getId());

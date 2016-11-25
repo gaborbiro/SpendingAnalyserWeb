@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 public class CategorisationService {
 
 	public static final String CATEGORY_SUBSCRIPTION = "Subscription";
-	public static final String CATEGORY_UNKNOWN = "Unknown";
 
 	private Map<String, List<String>> map;
 
@@ -26,9 +25,6 @@ public class CategorisationService {
 			if (description.toLowerCase().contains(key.toLowerCase())) {
 				category = getFirstNonSpecialCategory(map.get(key));
 			}
-		}
-		if (category == null) {
-			category = CATEGORY_UNKNOWN;
 		}
 		return category;
 	}

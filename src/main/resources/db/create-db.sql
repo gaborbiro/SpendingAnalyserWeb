@@ -30,7 +30,7 @@ create table TRANSACTION (
    user_id BIGINT NOT NULL,
    document_id BIGINT NOT NULL,
    description VARCHAR(255) NOT NULL,
-   date_ BIGINT NOT NULL,
+   date_ DATE NOT NULL,
    amount BIGINT NOT NULL,
    category VARCHAR(255),
    is_subscription TINYINT(1),

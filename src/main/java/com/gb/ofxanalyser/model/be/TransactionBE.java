@@ -1,6 +1,6 @@
 package com.gb.ofxanalyser.model.be;
 
-import java.util.Date;
+import java.sql.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,7 +29,7 @@ public class TransactionBE implements Comparable<TransactionBE> {
 	private String description;
 
 	@Column(name = DATE)
-	private long date_;
+	private java.sql.Date date_;
 
 	@Column(name = AMOUNT)
 	private double amount;
@@ -63,11 +63,11 @@ public class TransactionBE implements Comparable<TransactionBE> {
 		this.description = description;
 	}
 
-	public long getDate() {
+	public Date getDate() {
 		return date_;
 	}
 
-	public void setDate(long date) {
+	public void setDate(Date date) {
 		this.date_ = date;
 	}
 
@@ -126,7 +126,7 @@ public class TransactionBE implements Comparable<TransactionBE> {
 		long temp;
 		temp = Double.doubleToLongBits(amount);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + (int) (date_ ^ (date_ >>> 32));
+		result = prime * result + ((date_ == null) ? 0 : date_.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		return result;
 	}
@@ -142,7 +142,10 @@ public class TransactionBE implements Comparable<TransactionBE> {
 		TransactionBE other = (TransactionBE) obj;
 		if (Double.doubleToLongBits(amount) != Double.doubleToLongBits(other.amount))
 			return false;
-		if (date_ != other.date_)
+		if (date_ == null) {
+			if (other.date_ != null)
+				return false;
+		} else if (!date_.equals(other.date_))
 			return false;
 		if (description == null) {
 			if (other.description != null)
@@ -154,8 +157,8 @@ public class TransactionBE implements Comparable<TransactionBE> {
 
 	@Override
 	public String toString() {
-		return "TransactionBE [id=" + id + ", description=" + description + ", date_=" + new Date(date_) + ", amount="
-				+ amount + ", user=" + user + "]";
+		return "TransactionBE [id=" + id + ", description=" + description + ", date_=" + date_ + ", amount=" + amount
+				+ ", user=" + user + "]";
 	}
 
 	@Override
