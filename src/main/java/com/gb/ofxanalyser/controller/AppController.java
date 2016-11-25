@@ -27,7 +27,6 @@ import com.gb.ofxanalyser.model.fe.FileBucket;
 import com.gb.ofxanalyser.model.fe.HistorySorting;
 import com.gb.ofxanalyser.model.fe.TransactionFE;
 import com.gb.ofxanalyser.model.fe.User;
-import com.gb.ofxanalyser.service.categories.CategorisationService;
 import com.gb.ofxanalyser.service.finance.TransactionsService;
 import com.gb.ofxanalyser.service.user.TransactionService;
 import com.gb.ofxanalyser.service.user.UserDocumentService;

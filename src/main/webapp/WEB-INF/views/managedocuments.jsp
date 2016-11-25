@@ -26,7 +26,8 @@
 			<!-- Default panel contents -->
 			<div class="panel-heading">
 				<span class="lead"><a data-toggle="collapse"
-					href="#documents">Documents</a></span>
+					href="#documents">Documents <span
+						class="glyphicon glyphicon-collapse-down"></span></a></span>
 			</div>
 			<div id="documents" class="tablecontainer collapse in">
 				<a href="#table"></a>
@@ -62,7 +63,8 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<span class="lead"><a data-toggle="collapse" href="#upload">Upload
-						New File</a></span>
+						New File <span class="glyphicon glyphicon-collapse-down"></span>
+				</a></span>
 			</div>
 			<div id="upload" class="uploadcontainer collapse in">
 				<form:form method="POST" modelAttribute="fileBucket"
@@ -74,7 +76,11 @@
 								<c:when test="${not empty fileReject}">
 									<label class="col-md-3 control-lable"></label>
 									<div class="col-md-7">
-										<div class="has-error lead">${fileReject}</div>
+										<div class="alert alert-warning alert-dismissable fade in">
+											<a href="#" class="close" data-dismiss="alert"
+												aria-label="close">×</a> <strong>Warning!</strong>
+											${fileReject}
+										</div>
 									</div>
 								</c:when>
 								<c:otherwise>
@@ -120,7 +126,8 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<span class="lead"><a data-toggle="collapse"
-					href="#transactions">Transactions</a></span>
+					href="#transactions">Transactions <span
+						class="glyphicon glyphicon-collapse-down"></span></a></span>
 			</div>
 			<div id="transactions" class="tablecontainer collapse in">
 				<table class="table table-hover table-condensed table-responsive">

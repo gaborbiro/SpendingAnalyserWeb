@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.gb.ofxanalyser.model.be.CategoryStats;
 import com.gb.ofxanalyser.model.be.TransactionBE;
 import com.gb.ofxanalyser.model.be.UserBE;
 import com.gb.ofxanalyser.model.be.UserDocumentBE;
@@ -76,8 +75,10 @@ public class TransactionsService {
 				if (buffer.length() == 0) {
 					buffer.append("No new transactions found in: ");
 				}
+				buffer.append("<br>");
 				buffer.append(multipartFile.getOriginalFilename());
-				buffer.append(" ");
+			} else {
+				userDocumentService.saveDocument(document);
 			}
 		}
 		return buffer.toString();
@@ -174,17 +175,6 @@ public class TransactionsService {
 
 		public Map<String, Long[]> getPeriods() {
 			return periods;
-		}
-	}
-
-	private class StatsSink implements FileParser.FileEntrySink<FileEntry> {
-
-		private Set<CategoryStats> stats;
-
-		@Override
-		public void onEntry(FileContent file, FileEntry entry) {
-			// TODO Auto-generated method stub
-
 		}
 	}
 }
