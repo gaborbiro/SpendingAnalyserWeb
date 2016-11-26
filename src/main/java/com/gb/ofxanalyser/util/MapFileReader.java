@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.categories;
+package com.gb.ofxanalyser.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,32 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * A database that maps transaction payees onto categories.<br>
- * Like "STARBUCKS" to "Food & Drink" or "DENPLAN" to "Healthcare"<br>
- */
-public class CategoriesParser {
+public class MapFileReader {
 
-	private CategoriesParser() {
-	}
-
-	public File getMappingResourceFile() {
-		ClassLoader classLoader = getClass().getClassLoader();
-		return new File(classLoader.getResource("categories").getFile());
-	}
-
-	public static File getLocalMappingFile() {
-		return new File("c:\\Work2\\Spring\\ofx-analyser-web\\src\\main\\resources\\categories");
-	}
-
-	/**
-	 * @return location->category[]
-	 */
-	public static Map<String, List<String>> getMapping() {
-		return new CategoriesParser().readMappings(getLocalMappingFile());
-	}
-
-	private Map<String, List<String>> readMappings(File file) {
+	public Map<String, List<String>> read(File file) {
 		HashMap<String, List<String>> CACHE = new HashMap<String, List<String>>();
 		InputStream is = null;
 		BufferedReader bfReader = null;

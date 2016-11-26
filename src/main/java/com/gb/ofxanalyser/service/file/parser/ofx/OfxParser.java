@@ -17,9 +17,9 @@ import net.sf.ofx4j.domain.data.common.TransactionList;
 import net.sf.ofx4j.io.AggregateUnmarshaller;
 import net.sf.ofx4j.io.OFXParseException;
 
-public class OfxParser implements FileParser<FileEntry> {
+public class OfxParser implements FileParser {
 
-	public int parse(FileContent file, FileEntrySink<FileEntry> listener) throws ParseException {
+	public int parse(FileContent file, FileEntrySink listener) throws ParseException {
 		int entryCount = 0;
 		AggregateUnmarshaller<ResponseEnvelope> unmarshaller = new AggregateUnmarshaller<ResponseEnvelope>(
 				ResponseEnvelope.class);

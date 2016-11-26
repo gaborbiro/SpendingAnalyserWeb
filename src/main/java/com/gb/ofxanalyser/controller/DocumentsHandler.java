@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.finance;
+package com.gb.ofxanalyser.controller;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -8,35 +8,34 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.gb.ofxanalyser.model.be.TransactionBE;
 import com.gb.ofxanalyser.model.be.UserBE;
 import com.gb.ofxanalyser.model.be.UserDocumentBE;
 import com.gb.ofxanalyser.model.fe.FileBucket;
-import com.gb.ofxanalyser.service.categories.CategorisationService;
-import com.gb.ofxanalyser.service.file.FilesParser;
+import com.gb.ofxanalyser.service.CategorisationService;
+import com.gb.ofxanalyser.service.TransactionService;
+import com.gb.ofxanalyser.service.UserDocumentService;
+import com.gb.ofxanalyser.service.file.FileParserService;
 import com.gb.ofxanalyser.service.file.parser.FileContent;
 import com.gb.ofxanalyser.service.file.parser.FileEntry;
 import com.gb.ofxanalyser.service.file.parser.FileParser;
-import com.gb.ofxanalyser.service.user.TransactionService;
-import com.gb.ofxanalyser.service.user.UserDocumentService;
 import com.gb.ofxanalyser.util.TextUtils;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
-@Service("transactionsService")
-public class TransactionsService {
+public class DocumentsHandler {
 
-	@Autowired
 	UserDocumentService userDocumentService;
-
-	@Autowired
 	TransactionService transactionService;
-
-	@Autowired
 	CategorisationService categorisationService;
+
+	public DocumentsHandler(UserDocumentService userDocumentService, TransactionService transactionService,
+			CategorisationService categorisationService) {
+		this.userDocumentService = userDocumentService;
+		this.transactionService = transactionService;
+		this.categorisationService = categorisationService;
+	}
 
 	public String processDocuments(UserBE user, FileBucket fileBucket) throws IOException {
 		UserDocumentBE document = null;
@@ -91,7 +90,7 @@ public class TransactionsService {
 	 */
 	private Set<TransactionBE> processDocument(UserBE user, UserDocumentBE document, MultipartFile file)
 			throws IOException {
-		FilesParser.Builder<FileEntry> builder = FilesParser.builder(new ParserFactoryImpl());
+		FileParserService.Builder builder = FileParserService.builder();
 		builder.with(file);
 
 		TransactionsSink transactionsSink = new TransactionsSink(user, document);
@@ -113,7 +112,7 @@ public class TransactionsService {
 		return transactionsSink.getTransactions();
 	}
 
-	private class TransactionsSink implements FileParser.FileEntrySink<FileEntry> {
+	private class TransactionsSink implements FileParser.FileEntrySink {
 
 		private Set<TransactionBE> transactions;
 		private UserBE user;
@@ -152,7 +151,7 @@ public class TransactionsService {
 		}
 	}
 
-	private class PeriodsSink implements FileParser.FileEntrySink<FileEntry> {
+	private class PeriodsSink implements FileParser.FileEntrySink {
 
 		private Map<String, Long[]> periods = new HashMap<>();
 

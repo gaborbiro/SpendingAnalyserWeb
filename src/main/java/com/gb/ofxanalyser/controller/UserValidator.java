@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.util;
+package com.gb.ofxanalyser.controller;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

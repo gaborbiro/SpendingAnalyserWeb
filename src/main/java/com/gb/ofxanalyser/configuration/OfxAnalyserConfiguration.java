@@ -17,7 +17,7 @@ import org.springframework.web.servlet.view.JstlView;
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = "com.gb.ofxanalyser")
-public class HelloWorldConfiguration extends WebMvcConfigurerAdapter {
+public class OfxAnalyserConfiguration extends WebMvcConfigurerAdapter {
 
 	@Bean(name = "multipartResolver")
 	public StandardServletMultipartResolver resolver() {

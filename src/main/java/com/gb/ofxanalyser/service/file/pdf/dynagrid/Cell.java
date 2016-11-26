@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.util.dynagrid;
+package com.gb.ofxanalyser.service.file.pdf.dynagrid;
 
 public class Cell<I, T> {
 	public T data;

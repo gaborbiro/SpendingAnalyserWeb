@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.user;
+package com.gb.ofxanalyser.service;
 
 import java.util.List;
 

@@ -13,10 +13,10 @@ import com.gb.ofxanalyser.service.file.parser.ParseException;
 import com.gb.ofxanalyser.service.file.pdf.PdfParser;
 import com.gb.ofxanalyser.service.file.pdf.Rect;
 import com.gb.ofxanalyser.service.file.pdf.StringGrid;
+import com.gb.ofxanalyser.service.file.pdf.dynagrid.Cell;
 import com.gb.ofxanalyser.service.file.pdf.itext.PdfParserImpl;
-import com.gb.ofxanalyser.util.dynagrid.Cell;
 
-public class RevolutPdfParser implements FileParser<FileEntry> {
+public class RevolutPdfParser implements FileParser {
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd MMM yyyy");
 
@@ -38,7 +38,7 @@ public class RevolutPdfParser implements FileParser<FileEntry> {
 	 */
 	private static final int MONEY_COLUMN_LOOKBACK = 20;
 
-	public int parse(FileContent file, FileEntrySink<FileEntry> listener) throws ParseException {
+	public int parse(FileContent file, FileEntrySink listener) throws ParseException {
 		PdfParser parser = new PdfParserImpl(file);
 		referenceDelimiter = null;
 		paidOutDelimiter = null;
@@ -61,8 +61,7 @@ public class RevolutPdfParser implements FileParser<FileEntry> {
 		return entryCount;
 	}
 
-	private int handlePage(PdfParser parser, FileContent file, int page, FileEntrySink<FileEntry> listener)
-			throws IOException {
+	private int handlePage(PdfParser parser, FileContent file, int page, FileEntrySink listener) throws IOException {
 		Rect topDelimiter = parser.findText(page, ANCHOR_START);
 		Rect bottomDelimiter = parser.findText(page, ANCHOR_END);
 
@@ -116,7 +115,7 @@ public class RevolutPdfParser implements FileParser<FileEntry> {
 		return 0;
 	}
 
-	private int processTable(FileContent file, int page, StringGrid table, FileEntrySink<FileEntry> listener) {
+	private int processTable(FileContent file, int page, StringGrid table, FileEntrySink listener) {
 		for (Iterator<Iterator<Cell<Float, String>>> rowI = table.iterator(); rowI.hasNext();) {
 			FileEntry entry = processRow(rowI);
 

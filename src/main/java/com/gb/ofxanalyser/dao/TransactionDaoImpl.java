@@ -25,6 +25,20 @@ public class TransactionDaoImpl extends AbstractDao<Integer, TransactionBE> impl
 		return (List<TransactionBE>) crit.list();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<TransactionBE> findAllSubscriptionsByUserId(int userId, Order... orders) {
+		Criteria crit = createEntityCriteria();
+		Criteria userCriteria = crit.createCriteria("user");
+		userCriteria.add(Restrictions.eq(TransactionBE.ID, userId));
+		crit.add(Restrictions.eq("isSubscription", (byte) 1));
+
+		for (Order order : orders) {
+			crit.addOrder(order);
+		}
+		return (List<TransactionBE>) crit.list();
+	}
+
 	@Override
 	public void save(TransactionBE transaction) {
 		persist(transaction);

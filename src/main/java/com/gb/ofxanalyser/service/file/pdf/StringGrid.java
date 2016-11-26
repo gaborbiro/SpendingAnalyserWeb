@@ -8,9 +8,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import com.gb.ofxanalyser.util.dynagrid.Cell;
-import com.gb.ofxanalyser.util.dynagrid.Grid;
-import com.gb.ofxanalyser.util.dynagrid.Header;
+import com.gb.ofxanalyser.service.file.pdf.dynagrid.Cell;
+import com.gb.ofxanalyser.service.file.pdf.dynagrid.Grid;
+import com.gb.ofxanalyser.service.file.pdf.dynagrid.Header;
 
 public class StringGrid extends Grid<Float, String> {
 

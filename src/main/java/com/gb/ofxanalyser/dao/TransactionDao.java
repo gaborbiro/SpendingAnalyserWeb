@@ -9,6 +9,8 @@ import com.gb.ofxanalyser.model.be.TransactionBE;
 public interface TransactionDao {
 
 	List<TransactionBE> findAllByUserId(int userId,  Order... orders);
+	
+	List<TransactionBE> findAllSubscriptionsByUserId(int userId,  Order... orders);
 
 	void save(TransactionBE transaction);
 

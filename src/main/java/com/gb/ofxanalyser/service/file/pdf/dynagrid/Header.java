@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.util.dynagrid;
+package com.gb.ofxanalyser.service.file.pdf.dynagrid;
 
 import java.util.Comparator;
 import java.util.Set;

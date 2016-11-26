@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gb.ofxanalyser.model.Translator;
 import com.gb.ofxanalyser.model.fe.User;
-import com.gb.ofxanalyser.service.user.UserService;
+import com.gb.ofxanalyser.service.UserService;
 
 @Controller
 @RequestMapping("/rest/v1")

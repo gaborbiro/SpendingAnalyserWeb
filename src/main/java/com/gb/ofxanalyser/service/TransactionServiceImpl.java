@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.user;
+package com.gb.ofxanalyser.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,13 @@ public class TransactionServiceImpl implements TransactionService {
 	@Autowired
 	TransactionDao dao;
 
-	public List<TransactionBE> findAllByUserId(int userId, HistorySorting sorting) {
+	@Autowired
+	UserDocumentService userDocumentService;
+
+	@Autowired
+	CategorisationService categorisationService;
+
+	public List<TransactionBE> findAllByUserId(int userId, boolean subscriptionsOnly, HistorySorting sorting) {
 		List<Order> orders = new ArrayList<>();
 
 		if (sorting != null) {
@@ -58,7 +64,11 @@ public class TransactionServiceImpl implements TransactionService {
 				}
 			}
 		}
-		return dao.findAllByUserId(userId, orders.toArray(new Order[orders.size()]));
+		if (subscriptionsOnly) {
+			return dao.findAllSubscriptionsByUserId(userId, orders.toArray(new Order[orders.size()]));
+		} else {
+			return dao.findAllByUserId(userId, orders.toArray(new Order[orders.size()]));
+		}
 	}
 
 	@Override

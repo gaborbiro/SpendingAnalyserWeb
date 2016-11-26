@@ -17,7 +17,7 @@ import com.gb.ofxanalyser.service.file.parser.FileParser;
 import com.gb.ofxanalyser.service.file.parser.ParseException;
 import com.gb.ofxanalyser.util.TextUtils;
 
-public class QIFParser implements FileParser<FileEntry> {
+public class QIFParser implements FileParser {
 
 	public static final TimeZone GMT_TIME_ZONE = TimeZone.getTimeZone("GMT");
 
@@ -35,7 +35,7 @@ public class QIFParser implements FileParser<FileEntry> {
 	private static final char TOKEN_END = '^';
 
 	@Override
-	public int parse(FileContent file, FileEntrySink<FileEntry> listener) throws ParseException {
+	public int parse(FileContent file, FileEntrySink listener) throws ParseException {
 		InputStream is = null;
 		BufferedReader bfReader = null;
 		int entryCount = 0;
@@ -63,8 +63,8 @@ public class QIFParser implements FileParser<FileEntry> {
 		return entryCount;
 	}
 
-	private int processLine(FileContent file, TransactionContext context, String line,
-			FileEntrySink<FileEntry> listener) throws QIFSyntaxException {
+	private int processLine(FileContent file, TransactionContext context, String line, FileEntrySink listener)
+			throws QIFSyntaxException {
 		int entryCount = 0;
 		char c = line.charAt(0);
 		line = line.substring(1);
@@ -155,7 +155,7 @@ public class QIFParser implements FileParser<FileEntry> {
 			return currentSplit;
 		}
 
-		public int processTransactions(FileContent file, FileEntrySink<FileEntry> listener) {
+		public int processTransactions(FileContent file, FileEntrySink listener) {
 			if (split.isEmpty()) {
 				listener.onEntry(file, new FileEntry(date, payee, memo, amount));
 				return 1;

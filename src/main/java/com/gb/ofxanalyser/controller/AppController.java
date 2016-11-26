@@ -27,17 +27,15 @@ import com.gb.ofxanalyser.model.fe.FileBucket;
 import com.gb.ofxanalyser.model.fe.HistorySorting;
 import com.gb.ofxanalyser.model.fe.TransactionFE;
 import com.gb.ofxanalyser.model.fe.User;
-import com.gb.ofxanalyser.service.finance.TransactionsService;
-import com.gb.ofxanalyser.service.user.TransactionService;
-import com.gb.ofxanalyser.service.user.UserDocumentService;
-import com.gb.ofxanalyser.service.user.UserService;
-import com.gb.ofxanalyser.util.FileValidator;
+import com.gb.ofxanalyser.service.CategorisationService;
+import com.gb.ofxanalyser.service.TransactionService;
+import com.gb.ofxanalyser.service.UserDocumentService;
+import com.gb.ofxanalyser.service.UserService;
 import com.gb.ofxanalyser.util.TextUtils;
-import com.gb.ofxanalyser.util.UserValidator;
 
 @Controller
 @RequestMapping("/")
-@SessionAttributes("sorting")
+@SessionAttributes({ "sorting", "subscriptionsSorting" })
 public class AppController {
 
 	@Autowired
@@ -50,6 +48,9 @@ public class AppController {
 	TransactionService transactionService;
 
 	@Autowired
+	CategorisationService categorisationService;
+
+	@Autowired
 	MessageSource messageSource;
 
 	@Autowired
@@ -57,9 +58,6 @@ public class AppController {
 
 	@Autowired
 	UserValidator userValidator;
-
-	@Autowired
-	TransactionsService transactionsService;
 
 	@InitBinder("fileBucket")
 	protected void initBinderFileBucket(WebDataBinder binder) {
@@ -216,12 +214,7 @@ public class AppController {
 			}
 		}
 
-		List<TransactionFE> transactions = Translator.get(transactionService.findAllByUserId(userId, sorting));
-
-		// for (TransactionFE transaction : transactions) {
-		// transaction.setCategory(categorisationService.getCategoryForTransaction(transaction.getDescription()));
-		// transaction.setSubscription(categorisationService.isSubscription(transaction.getDescription()));
-		// }
+		List<TransactionFE> transactions = Translator.get(transactionService.findAllByUserId(userId, false, sorting));
 
 		model.addAttribute("transactions", transactions);
 
@@ -244,7 +237,9 @@ public class AppController {
 			List<UserDocumentBE> documents = userDocumentService.findAllByUserId(userId);
 			model.addAttribute("documents", Translator.get(documents));
 		} else {
-			String warning = transactionsService.processDocuments(user, fileBucket);
+			DocumentsHandler documentsHandler = new DocumentsHandler(userDocumentService, transactionService,
+					categorisationService);
+			String warning = documentsHandler.processDocuments(user, fileBucket);
 
 			addDocuments(userId, model, null);
 
@@ -263,8 +258,58 @@ public class AppController {
 		UserBE user = userService.findById(id);
 		model.addAttribute("user", Translator.get(user));
 
-		List<TransactionFE> transactions = Translator.get(transactionService.findAllByUserId(id, null));
+		List<TransactionFE> transactions = Translator.get(transactionService.findAllByUserId(id, false, null));
 		model.addAttribute("transactions", transactions);
 		return "stats";
+	}
+
+	/**
+	 * This method will provide the medium to update an existing user.
+	 */
+	@RequestMapping(value = { "/subscriptions-{userId}" }, method = RequestMethod.GET)
+	public String subscriptions(@PathVariable int userId, ModelMap model,
+			@RequestParam(required = false) String togglesort) {
+		UserBE user = userService.findById(userId);
+
+		if (user == null) {
+			return "redirect:/list";
+		}
+
+		model.addAttribute("user", Translator.get(user));
+
+		HistorySorting subscriptionSorting = null;
+
+		if (model.containsKey("subscriptionsSorting")) {
+			subscriptionSorting = (HistorySorting) model.get("subscriptionsSorting");
+		} else {
+			subscriptionSorting = HistorySorting.getSortingByDate();
+			model.addAttribute("subscriptionsSorting", subscriptionSorting);
+		}
+
+		if (togglesort != null) {
+			switch (togglesort) {
+			case SORT_NAME_MEMO:
+				subscriptionSorting.toggle(HistorySorting.CRIT_MEM_ASC, true);
+				break;
+			case SORT_CATEGORY:
+				subscriptionSorting.toggle(HistorySorting.CRIT_CAT_ASC, true);
+				break;
+			case SORT_DATE:
+				subscriptionSorting.toggle(HistorySorting.CRIT_DAT_ASC, true);
+				break;
+			case SORT_AMOUNT:
+				subscriptionSorting.toggle(HistorySorting.CRIT_VAL_ASC, true);
+				break;
+			default:
+				break;
+			}
+		}
+
+		List<TransactionFE> transactions = Translator
+				.get(transactionService.findAllByUserId(userId, true, subscriptionSorting));
+
+		model.addAttribute("transactions", transactions);
+
+		return "subscriptions";
 	}
 }

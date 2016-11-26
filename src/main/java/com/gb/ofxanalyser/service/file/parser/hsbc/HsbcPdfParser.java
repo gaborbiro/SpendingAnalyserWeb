@@ -13,11 +13,11 @@ import com.gb.ofxanalyser.service.file.parser.ParseException;
 import com.gb.ofxanalyser.service.file.pdf.PdfParser;
 import com.gb.ofxanalyser.service.file.pdf.Rect;
 import com.gb.ofxanalyser.service.file.pdf.StringGrid;
+import com.gb.ofxanalyser.service.file.pdf.dynagrid.Cell;
 import com.gb.ofxanalyser.service.file.pdf.itext.PdfParserImpl;
 import com.gb.ofxanalyser.util.TextUtils;
-import com.gb.ofxanalyser.util.dynagrid.Cell;
 
-public class HsbcPdfParser implements FileParser<FileEntry> {
+public class HsbcPdfParser implements FileParser {
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd MMM yy");
 
@@ -35,7 +35,7 @@ public class HsbcPdfParser implements FileParser<FileEntry> {
 	 */
 	private static final int MONEY_COLUMN_LOOKBACK = 20;
 
-	public int parse(FileContent file, FileEntrySink<FileEntry> listener) throws ParseException {
+	public int parse(FileContent file, FileEntrySink listener) throws ParseException {
 		PdfParser parser = new PdfParserImpl(file);
 		int entryCount = 0;
 		try {
@@ -59,7 +59,7 @@ public class HsbcPdfParser implements FileParser<FileEntry> {
 	}
 
 	private static int handlePage(PdfParser parser, FileContent file, int page, FileContext fileContext,
-			FileEntrySink<FileEntry> listener) throws IOException {
+			FileEntrySink listener) throws IOException {
 		// find the table-part of the page
 		Rect topDelimiter = parser.findText(page, ANCHOR_TABLE_START);
 		Rect bottomDelimiter = parser.findText(page, ANCHOR_TABLE_END);
@@ -101,7 +101,7 @@ public class HsbcPdfParser implements FileParser<FileEntry> {
 	}
 
 	private static int processTable(FileContent file, int page, StringGrid table, FileContext fileContext,
-			FileEntrySink<FileEntry> listener) {
+			FileEntrySink listener) {
 		int entryCount = 0;
 		TransactionContext transactionContext = new TransactionContext(null, "", null);
 

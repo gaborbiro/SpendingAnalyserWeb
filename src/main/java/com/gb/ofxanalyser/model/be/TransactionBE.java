@@ -15,9 +15,12 @@ import javax.persistence.Table;
 @Table(name = "transaction")
 public class TransactionBE implements Comparable<TransactionBE> {
 
+	public static final String ID = "id";
 	public static final String DESCRIPTION = "description";
 	public static final String DATE = "date_";
 	public static final String AMOUNT = "amount";
+	public static final String USER_ID = "user_id";
+	public static final String DOCUMENT_ID = "document_id";
 	public static final String CATEGORY = "category";
 	public static final String IS_SUBSCRIPTION = "is_subscription";
 
@@ -35,14 +38,14 @@ public class TransactionBE implements Comparable<TransactionBE> {
 	private double amount;
 
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = USER_ID)
 	private UserBE user;
 
 	// @ManyToOne(optional = false)
 	// @JoinColumn(name = "document_id")
 	// private UserDocumentBE userDocument;
 
-	@Column(name = "document_id")
+	@Column(name = DOCUMENT_ID)
 	private Integer documentId;
 
 	@Column(name = CATEGORY)
