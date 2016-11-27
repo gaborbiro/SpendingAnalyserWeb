@@ -39,9 +39,7 @@
 								<td>${user.lastName}</td>
 								<td>${user.email}</td>
 								<td><a href="<c:url value='/add-document-${user.id}' />"
-									class="btn btn-success custom-width">history</a>
-								<td><a href="<c:url value='/stats-${user.id}' />"
-									class="btn btn-success custom-width">stats</a>
+									class="btn btn-success custom-width">view</a>
 								<td><a href="<c:url value='/edit-user-${user.id}' />"
 									class="btn btn-success custom-width">edit</a></td>
 								<td><a href="<c:url value='/delete-user-${user.id}' />"

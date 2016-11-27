@@ -1,12 +1,12 @@
-package com.gb.ofxanalyser.service.file.parser.ofx;
+package com.gb.ofxanalyser.file.parser.ofx;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import com.gb.ofxanalyser.service.file.parser.FileContent;
-import com.gb.ofxanalyser.service.file.parser.FileEntry;
-import com.gb.ofxanalyser.service.file.parser.FileParser;
-import com.gb.ofxanalyser.service.file.parser.ParseException;
+import com.gb.ofxanalyser.file.parser.FileContent;
+import com.gb.ofxanalyser.file.parser.FileEntry;
+import com.gb.ofxanalyser.file.parser.FileParser;
+import com.gb.ofxanalyser.file.parser.ParseException;
 
 import net.sf.ofx4j.domain.data.ResponseEnvelope;
 import net.sf.ofx4j.domain.data.ResponseMessageSet;

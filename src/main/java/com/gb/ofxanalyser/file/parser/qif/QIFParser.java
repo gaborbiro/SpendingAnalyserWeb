@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.file.parser.qif;
+package com.gb.ofxanalyser.file.parser.qif;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -11,10 +11,10 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.gb.ofxanalyser.service.file.parser.FileContent;
-import com.gb.ofxanalyser.service.file.parser.FileEntry;
-import com.gb.ofxanalyser.service.file.parser.FileParser;
-import com.gb.ofxanalyser.service.file.parser.ParseException;
+import com.gb.ofxanalyser.file.parser.FileContent;
+import com.gb.ofxanalyser.file.parser.FileEntry;
+import com.gb.ofxanalyser.file.parser.FileParser;
+import com.gb.ofxanalyser.file.parser.ParseException;
 import com.gb.ofxanalyser.util.TextUtils;
 
 public class QIFParser implements FileParser {

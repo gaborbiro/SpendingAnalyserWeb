@@ -25,6 +25,7 @@ public class Translator {
 
 	private static String CATEGORY_UNKNOWN = "Unknown";
 
+	@SuppressWarnings("unchecked")
 	public static <R> List<R> get(List list) {
 		if (list == null) {
 			return null;

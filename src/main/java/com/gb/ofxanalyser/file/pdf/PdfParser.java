@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.file.pdf;
+package com.gb.ofxanalyser.file.pdf;
 
 import java.io.IOException;
 

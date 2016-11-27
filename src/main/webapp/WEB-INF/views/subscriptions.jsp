@@ -37,12 +37,12 @@
 							<th><a
 								href="<c:url value='/subscriptions-${user.id}?togglesort=memoname'/>">
 									Memo/Name <c:choose>
-										<c:when test="${sorting.sortByNameMemo > 0}">
-											${sorting.sortByNameMemo}
+										<c:when test="${subscriptionsSorting.sortByNameMemo > 0}">
+											${subscriptionsSorting.sortByNameMemo}
 										&uarr;	
 										</c:when>
-										<c:when test="${sorting.sortByNameMemo < 0}">
-											${-sorting.sortByNameMemo}
+										<c:when test="${subscriptionsSorting.sortByNameMemo < 0}">
+											${-subscriptionsSorting.sortByNameMemo}
 										&darr;	
 										</c:when>
 										<c:otherwise>
@@ -52,12 +52,12 @@
 							<th><a
 								href="<c:url value='/subscriptions-${user.id}?togglesort=category'/>">
 									Category<c:choose>
-										<c:when test="${sorting.sortByCategory > 0}">
-											${sorting.sortByCategory}
+										<c:when test="${subscriptionsSorting.sortByCategory > 0}">
+											${subscriptionsSorting.sortByCategory}
 										&uarr;	
 										</c:when>
-										<c:when test="${sorting.sortByCategory < 0}">
-											${-sorting.sortByCategory}
+										<c:when test="${subscriptionsSorting.sortByCategory < 0}">
+											${-subscriptionsSorting.sortByCategory}
 										&darr;	
 										</c:when>
 										<c:otherwise>
@@ -67,12 +67,12 @@
 							<th><a
 								href="<c:url value='/subscriptions-${user.id}?togglesort=date'/>">
 									Date<c:choose>
-										<c:when test="${sorting.sortByDate > 0}">
-											${sorting.sortByDate}
+										<c:when test="${subscriptionsSorting.sortByDate > 0}">
+											${subscriptionsSorting.sortByDate}
 										&uarr;	
 										</c:when>
-										<c:when test="${sorting.sortByDate < 0}">
-											${-sorting.sortByDate}
+										<c:when test="${subscriptionsSorting.sortByDate < 0}">
+											${-subscriptionsSorting.sortByDate}
 										&darr;	
 										</c:when>
 										<c:otherwise>
@@ -82,12 +82,12 @@
 							<th style="text-align: right"><a
 								href="<c:url value='/subscriptions-${user.id}?togglesort=amount'/>">
 									Amount<c:choose>
-										<c:when test="${sorting.sortByAmount > 0}">
-											${sorting.sortByAmount}
+										<c:when test="${subscriptionsSorting.sortByAmount > 0}">
+											${subscriptionsSorting.sortByAmount}
 										&uarr;	
 										</c:when>
-										<c:when test="${sorting.sortByAmount < 0}">
-											${-sorting.sortByAmount}
+										<c:when test="${subscriptionsSorting.sortByAmount < 0}">
+											${-subscriptionsSorting.sortByAmount}
 										&darr;	
 										</c:when>
 										<c:otherwise>

@@ -24,6 +24,29 @@
 			<a href="<c:url value='/stats-${user.id}' />"><u>Stats</u></a> <a
 				href="<c:url value='/subscriptions-${user.id}' />"><u>Subscriptions</u></a>
 		</div>
+
+		<c:choose>
+			<c:when test="${not empty filesAccepted}">
+				<div class="alert alert-success alert-dismissable fade in">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+					<strong>Success!</strong> ${filesAccepted}
+				</div>
+			</c:when>
+			<c:otherwise>
+			</c:otherwise>
+		</c:choose>
+
+		<c:choose>
+			<c:when test="${not empty filesRejected}">
+				<div class="alert alert-danger alert-dismissable fade in">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+					<strong>Error!</strong> ${filesRejected}
+				</div>
+			</c:when>
+			<c:otherwise>
+			</c:otherwise>
+		</c:choose>
+
 		<div class="panel panel-default">
 			<!-- Default panel contents -->
 			<div class="panel-heading">
@@ -74,25 +97,6 @@
 
 					<div class="row">
 						<div class="form-group col-md-12">
-							<c:choose>
-								<c:when test="${not empty fileReject}">
-									<label class="col-md-3 control-lable"></label>
-									<div class="col-md-7">
-										<div class="alert alert-warning alert-dismissable fade in">
-											<a href="#" class="close" data-dismiss="alert"
-												aria-label="close">×</a> <strong>Warning!</strong>
-											${fileReject}
-										</div>
-									</div>
-								</c:when>
-								<c:otherwise>
-								</c:otherwise>
-							</c:choose>
-						</div>
-					</div>
-
-					<div class="row">
-						<div class="form-group col-md-12">
 							<label class="col-md-3 control-lable" for="file">Upload a
 								file</label>
 							<div class="col-md-7">
@@ -135,7 +139,7 @@
 				<table class="table table-hover table-condensed table-responsive">
 					<thead>
 						<tr>
-							<!-- <th>#</th> -->
+							<th>#</th>
 							<th><a
 								href="<c:url value='/add-document-${user.id}?togglesort=memoname'/>">
 									Memo/Name <c:choose>
@@ -217,6 +221,7 @@
 						<c:forEach items="${transactions}" var="transaction"
 							varStatus="counter">
 							<tr>
+								<td>${counter.index + 1}</td>
 								<td>${transaction.description}</td>
 								<td>${transaction.category}</td>
 								<c:choose>

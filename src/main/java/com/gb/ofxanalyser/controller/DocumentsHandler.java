@@ -2,14 +2,21 @@ package com.gb.ofxanalyser.controller;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.gb.ofxanalyser.file.FileParserService;
+import com.gb.ofxanalyser.file.parser.FileContent;
+import com.gb.ofxanalyser.file.parser.FileEntry;
+import com.gb.ofxanalyser.file.parser.FileParser;
 import com.gb.ofxanalyser.model.be.TransactionBE;
 import com.gb.ofxanalyser.model.be.UserBE;
 import com.gb.ofxanalyser.model.be.UserDocumentBE;
@@ -17,18 +24,14 @@ import com.gb.ofxanalyser.model.fe.FileBucket;
 import com.gb.ofxanalyser.service.CategorisationService;
 import com.gb.ofxanalyser.service.TransactionService;
 import com.gb.ofxanalyser.service.UserDocumentService;
-import com.gb.ofxanalyser.service.file.FileParserService;
-import com.gb.ofxanalyser.service.file.parser.FileContent;
-import com.gb.ofxanalyser.service.file.parser.FileEntry;
-import com.gb.ofxanalyser.service.file.parser.FileParser;
 import com.gb.ofxanalyser.util.TextUtils;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 public class DocumentsHandler {
 
-	UserDocumentService userDocumentService;
-	TransactionService transactionService;
-	CategorisationService categorisationService;
+	private UserDocumentService userDocumentService;
+	private TransactionService transactionService;
+	private CategorisationService categorisationService;
 
 	public DocumentsHandler(UserDocumentService userDocumentService, TransactionService transactionService,
 			CategorisationService categorisationService) {
@@ -37,10 +40,72 @@ public class DocumentsHandler {
 		this.categorisationService = categorisationService;
 	}
 
-	public String processDocuments(UserBE user, FileBucket fileBucket) throws IOException {
+	public static class ProcessingResult {
+		private List<String> successFiles = new ArrayList<>();
+		private int successCount;
+		private List<String> errorFiles = new ArrayList<>();
+
+		public ProcessingResult success(String... files) {
+			this.successFiles.addAll(Arrays.asList(files));
+			return this;
+		}
+
+		public ProcessingResult error(String... files) {
+			this.errorFiles.addAll(Arrays.asList(files));
+			return this;
+		}
+
+		public void setSuccessCount(int successCount) {
+			this.successCount = successCount;
+		}
+
+		public String[] getSuccessFiles() {
+			return successFiles.toArray(new String[successFiles.size()]);
+		}
+
+		public String[] getErrorFiles() {
+			return errorFiles.toArray(new String[errorFiles.size()]);
+		}
+
+		public String getSuccessMessage() {
+			StringBuffer buffer = new StringBuffer();
+			if (!successFiles.isEmpty()) {
+				if (buffer.length() == 0) {
+					if (successCount > 0) {
+						buffer.append(successCount);
+						buffer.append(" transactions added from: ");
+					} else {
+						buffer.append("Transactions added from: ");
+					}
+				}
+				for (String file : successFiles) {
+					buffer.append("<br>");
+					buffer.append(file);
+				}
+			}
+			return buffer.length() > 0 ? buffer.toString() : null;
+		}
+
+		public String getErrorMessage() {
+			StringBuffer buffer = new StringBuffer();
+			if (!errorFiles.isEmpty()) {
+				if (buffer.length() == 0) {
+					buffer.append("Did not extract any transactions from: ");
+				}
+				for (String file : errorFiles) {
+					buffer.append("<br>");
+					buffer.append(file);
+				}
+			}
+			return buffer.length() > 0 ? buffer.toString() : null;
+		}
+	}
+
+	public ProcessingResult processDocuments(UserBE user, FileBucket fileBucket) throws IOException {
 		UserDocumentBE document = null;
 		MultipartFile[] multipartFiles = fileBucket.getFiles();
-		StringBuffer buffer = new StringBuffer();
+		ProcessingResult result = new ProcessingResult();
+		int totalTransactionCount = 0;
 
 		for (MultipartFile multipartFile : multipartFiles) {
 			int transactionCount = 0;
@@ -51,36 +116,39 @@ public class DocumentsHandler {
 			document.setUser(user);
 			userDocumentService.saveDocument(document);
 
-			Set<TransactionBE> transactions = processDocument(user, document, multipartFile);
+			try {
+				Set<TransactionBE> transactions = processDocument(user, document, multipartFile);
 
-			for (TransactionBE transaction : transactions) {
-				try {
-					transactionService.saveTransaction(transaction);
-					transactionCount++;
-				} catch (ConstraintViolationException e) {
-					// ignoring duplicates
-					if (e.getSQLException() instanceof MySQLIntegrityConstraintViolationException) {
-						if (e.getSQLException().getMessage().contains("Duplicate")) {
-							System.out.println("Duplicate: " + transaction.getDescription());
-						} else {
-							throw e;
+				for (TransactionBE transaction : transactions) {
+					try {
+						transactionService.saveTransaction(transaction);
+						transactionCount++;
+					} catch (ConstraintViolationException e) {
+						// ignoring duplicates
+						if (e.getSQLException() instanceof MySQLIntegrityConstraintViolationException) {
+							if (e.getSQLException().getMessage().contains("Duplicate")) {
+								System.out.println("Duplicate: " + transaction.getDescription());
+							} else {
+								throw e;
+							}
 						}
 					}
 				}
+			} catch (Exception e) {
+				transactionCount = 0;
+				e.printStackTrace();
 			}
-
 			if (transactionCount == 0) {
 				userDocumentService.deleteById(document.getId());
-				if (buffer.length() == 0) {
-					buffer.append("No new transactions found in: ");
-				}
-				buffer.append("<br>");
-				buffer.append(multipartFile.getOriginalFilename());
+				result.error(multipartFile.getOriginalFilename());
 			} else {
 				userDocumentService.saveDocument(document);
+				result.success(multipartFile.getOriginalFilename());
 			}
+			totalTransactionCount += transactionCount;
 		}
-		return buffer.toString();
+		result.setSuccessCount(totalTransactionCount);
+		return result;
 	}
 
 	/**
@@ -100,6 +168,7 @@ public class DocumentsHandler {
 		builder.sink(periodsSink);
 
 		builder.build().process();
+		categorisationService.markMappingFileAsAccessed();
 
 		Map<String, Long[]> periods = periodsSink.getPeriods();
 

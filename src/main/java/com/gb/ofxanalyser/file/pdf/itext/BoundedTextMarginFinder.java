@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.file.pdf.itext;
+package com.gb.ofxanalyser.file.pdf.itext;
 
 import com.itextpdf.awt.geom.Rectangle2D;
 import com.itextpdf.awt.geom.Rectangle2D.Float;

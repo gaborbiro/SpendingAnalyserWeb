@@ -20,12 +20,13 @@ public class TransactionServiceImpl implements TransactionService {
 	TransactionDao dao;
 
 	@Autowired
-	UserDocumentService userDocumentService;
-
-	@Autowired
 	CategorisationService categorisationService;
 
 	public List<TransactionBE> findAllByUserId(int userId, boolean subscriptionsOnly, HistorySorting sorting) {
+		if (categorisationService.hasMappingFileChanged()) {
+			updateTransactionCategories();
+		}
+
 		List<Order> orders = new ArrayList<>();
 
 		if (sorting != null) {
@@ -50,10 +51,10 @@ public class TransactionServiceImpl implements TransactionService {
 					orders.add(Order.desc(TransactionBE.DESCRIPTION));
 					break;
 				case HistorySorting.CRIT_SUB_ASC:
-					orders.add(Order.asc(TransactionBE.IS_SUBSCRIPTION));
+					orders.add(Order.asc("isSubscription"));
 					break;
 				case HistorySorting.CRIT_SUB_DSC:
-					orders.add(Order.desc(TransactionBE.IS_SUBSCRIPTION));
+					orders.add(Order.desc("isSubscription"));
 					break;
 				case HistorySorting.CRIT_VAL_ASC:
 					orders.add(Order.asc(TransactionBE.AMOUNT));
@@ -74,5 +75,17 @@ public class TransactionServiceImpl implements TransactionService {
 	@Override
 	public void saveTransaction(TransactionBE transaction) {
 		dao.save(transaction);
+	}
+
+	private void updateTransactionCategories() {
+		List<TransactionBE> transactions = dao.findAll();
+
+		for (TransactionBE transaction : transactions) {
+			transaction.setCategory(categorisationService.getCategoryForTransaction(transaction.getDescription()));
+			transaction.setIsSubscription(
+					(byte) (categorisationService.isSubscription(transaction.getDescription()) ? 1 : 0));
+		}
+		dao.update(transactions);
+		categorisationService.markMappingFileAsAccessed();
 	}
 }

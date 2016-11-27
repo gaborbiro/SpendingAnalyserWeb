@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.file.parser.revolut;
+package com.gb.ofxanalyser.file.parser.revolut;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -6,25 +6,25 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 
-import com.gb.ofxanalyser.service.file.parser.FileContent;
-import com.gb.ofxanalyser.service.file.parser.FileEntry;
-import com.gb.ofxanalyser.service.file.parser.FileParser;
-import com.gb.ofxanalyser.service.file.parser.ParseException;
-import com.gb.ofxanalyser.service.file.pdf.PdfParser;
-import com.gb.ofxanalyser.service.file.pdf.Rect;
-import com.gb.ofxanalyser.service.file.pdf.StringGrid;
-import com.gb.ofxanalyser.service.file.pdf.dynagrid.Cell;
-import com.gb.ofxanalyser.service.file.pdf.itext.PdfParserImpl;
+import com.gb.ofxanalyser.file.parser.FileContent;
+import com.gb.ofxanalyser.file.parser.FileEntry;
+import com.gb.ofxanalyser.file.parser.FileParser;
+import com.gb.ofxanalyser.file.parser.ParseException;
+import com.gb.ofxanalyser.file.pdf.PdfParser;
+import com.gb.ofxanalyser.file.pdf.Rect;
+import com.gb.ofxanalyser.file.pdf.StringGrid;
+import com.gb.ofxanalyser.file.pdf.dynagrid.Cell;
+import com.gb.ofxanalyser.file.pdf.itext.PdfParserImpl;
 
 public class RevolutPdfParser implements FileParser {
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd MMM yyyy");
 
-	private static final String ANCHOR_START = "C o m p l e t e d D a t e";
-	private static final String ANCHOR_END = "P l e a s e N o t e:";
-	private static final String ANCHOR_REFERENCE = "R e f e r e n c e";
-	private static final String ANCHOR_PAYED_OUT = "P a i d O u t";
-	private static final String ANCHOR_PAYED_IN = "P a i d I n";
+	private static final String ANCHOR_START = "Completed Date";
+	private static final String ANCHOR_END = "Please Note:";
+	private static final String ANCHOR_REFERENCE = "Reference";
+	private static final String ANCHOR_PAYED_OUT = "Paid Out";
+	private static final String ANCHOR_PAYED_IN = "Paid In";
 
 	private static final String COLLAPSE_SEPARATOR = "";
 

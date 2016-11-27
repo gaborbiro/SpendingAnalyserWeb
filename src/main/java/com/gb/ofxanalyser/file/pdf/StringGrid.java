@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.file.pdf;
+package com.gb.ofxanalyser.file.pdf;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,9 +8,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import com.gb.ofxanalyser.service.file.pdf.dynagrid.Cell;
-import com.gb.ofxanalyser.service.file.pdf.dynagrid.Grid;
-import com.gb.ofxanalyser.service.file.pdf.dynagrid.Header;
+import com.gb.ofxanalyser.file.pdf.dynagrid.Cell;
+import com.gb.ofxanalyser.file.pdf.dynagrid.Grid;
+import com.gb.ofxanalyser.file.pdf.dynagrid.Header;
 
 public class StringGrid extends Grid<Float, String> {
 

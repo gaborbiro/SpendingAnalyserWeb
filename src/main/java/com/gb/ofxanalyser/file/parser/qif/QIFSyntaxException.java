@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.file.parser.qif;
+package com.gb.ofxanalyser.file.parser.qif;
 
 public class QIFSyntaxException extends Exception {
 

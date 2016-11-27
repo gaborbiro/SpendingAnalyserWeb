@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.file;
+package com.gb.ofxanalyser.file;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,15 +6,15 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.gb.ofxanalyser.service.file.parser.FileContent;
-import com.gb.ofxanalyser.service.file.parser.FileEntry;
-import com.gb.ofxanalyser.service.file.parser.FileParser;
-import com.gb.ofxanalyser.service.file.parser.FileParser.FileEntrySink;
-import com.gb.ofxanalyser.service.file.parser.hsbc.HsbcPdfParser;
-import com.gb.ofxanalyser.service.file.parser.ofx.OfxParser;
-import com.gb.ofxanalyser.service.file.parser.qif.QIFParser;
-import com.gb.ofxanalyser.service.file.parser.revolut.RevolutPdfParser;
-import com.gb.ofxanalyser.service.file.parser.ParseException;
+import com.gb.ofxanalyser.file.parser.FileContent;
+import com.gb.ofxanalyser.file.parser.FileEntry;
+import com.gb.ofxanalyser.file.parser.FileParser;
+import com.gb.ofxanalyser.file.parser.ParseException;
+import com.gb.ofxanalyser.file.parser.FileParser.FileEntrySink;
+import com.gb.ofxanalyser.file.parser.hsbc.HsbcPdfParser;
+import com.gb.ofxanalyser.file.parser.ofx.OfxParser;
+import com.gb.ofxanalyser.file.parser.qif.QIFParser;
+import com.gb.ofxanalyser.file.parser.revolut.RevolutPdfParser;
 
 /**
  * Extracts the complete list of entries from the uploaded files
@@ -71,15 +71,14 @@ public class FileParserService implements FileEntrySink {
 		boolean success = false;
 
 		for (FileParser parser : getParserForFile(file)) {
+			System.out.print(parser.getConverterName() + "...");
 			try {
 				int transactionCount = parser.parse(file, this);
-
 				if (transactionCount > 0) {
-					System.out.println(
-							"   success: " + parser.getConverterName() + " - " + transactionCount + " transactions");
+					System.out.println("   success: " + transactionCount + " transactions");
 					success = true;
 				} else {
-					System.out.println("   failed: " + parser.getConverterName());
+					System.out.println("failed");
 				}
 			} catch (ParseException e) {
 				// nothing to do, just try the next parser

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import com.gb.ofxanalyser.controller.DocumentsHandler.ProcessingResult;
 import com.gb.ofxanalyser.model.Translator;
 import com.gb.ofxanalyser.model.be.UserBE;
 import com.gb.ofxanalyser.model.be.UserDocumentBE;
@@ -128,9 +129,9 @@ public class AppController {
 	/**
 	 * This method will provide the medium to update an existing user.
 	 */
-	@RequestMapping(value = { "/edit-user-{id}" }, method = RequestMethod.GET)
-	public String editUser(@PathVariable int id, ModelMap model) {
-		UserBE user = userService.findById(id);
+	@RequestMapping(value = { "/edit-user-{userId}" }, method = RequestMethod.GET)
+	public String editUser(@PathVariable int userId, ModelMap model) {
+		UserBE user = userService.findById(userId);
 		model.addAttribute("user", Translator.get(user));
 		model.addAttribute("edit", true);
 		return "registration";
@@ -140,7 +141,7 @@ public class AppController {
 	 * This method will be called on form submission, handling POST request for
 	 * updating user in database. It also validates the user input
 	 */
-	@RequestMapping(value = { "/edit-user-{id}" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/edit-user-{userId}" }, method = RequestMethod.POST)
 	public String updateUser(@Valid User user, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
 			return "registration";
@@ -154,9 +155,9 @@ public class AppController {
 	/**
 	 * This method will delete an user by it's id.
 	 */
-	@RequestMapping(value = { "/delete-user-{id}" }, method = RequestMethod.GET)
-	public String deleteUser(@PathVariable int id) {
-		userService.deleteUserById(id);
+	@RequestMapping(value = { "/delete-user-{userId}" }, method = RequestMethod.GET)
+	public String deleteUser(@PathVariable int userId) {
+		userService.deleteUserById(userId);
 		return "redirect:/list";
 	}
 
@@ -239,13 +240,12 @@ public class AppController {
 		} else {
 			DocumentsHandler documentsHandler = new DocumentsHandler(userDocumentService, transactionService,
 					categorisationService);
-			String warning = documentsHandler.processDocuments(user, fileBucket);
+			ProcessingResult processingResult = documentsHandler.processDocuments(user, fileBucket);
 
 			addDocuments(userId, model, null);
 
-			if (!TextUtils.isEmpty(warning)) {
-				model.addAttribute("fileReject", warning);
-			}
+			model.addAttribute("filesRejected", processingResult.getErrorMessage());
+			model.addAttribute("filesAccepted", processingResult.getSuccessMessage());
 		}
 		return "managedocuments";
 	}
@@ -253,12 +253,12 @@ public class AppController {
 	/**
 	 * This method will provide the medium to update an existing user.
 	 */
-	@RequestMapping(value = { "/stats-{id}" }, method = RequestMethod.GET)
-	public String stats(@PathVariable int id, ModelMap model) {
-		UserBE user = userService.findById(id);
+	@RequestMapping(value = { "/stats-{userId}" }, method = RequestMethod.GET)
+	public String stats(@PathVariable int userId, ModelMap model) {
+		UserBE user = userService.findById(userId);
 		model.addAttribute("user", Translator.get(user));
 
-		List<TransactionFE> transactions = Translator.get(transactionService.findAllByUserId(id, false, null));
+		List<TransactionFE> transactions = Translator.get(transactionService.findAllByUserId(userId, false, null));
 		model.addAttribute("transactions", transactions);
 		return "stats";
 	}
@@ -282,7 +282,7 @@ public class AppController {
 		if (model.containsKey("subscriptionsSorting")) {
 			subscriptionSorting = (HistorySorting) model.get("subscriptionsSorting");
 		} else {
-			subscriptionSorting = HistorySorting.getSortingByDate();
+			subscriptionSorting = HistorySorting.getSortingByDescription();
 			model.addAttribute("subscriptionsSorting", subscriptionSorting);
 		}
 

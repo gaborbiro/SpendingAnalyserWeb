@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.file.parser;
+package com.gb.ofxanalyser.file.parser;
 
 import java.text.DateFormat;
 import java.util.Date;

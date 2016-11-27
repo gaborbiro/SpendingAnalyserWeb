@@ -25,6 +25,12 @@ public class HistorySorting extends Sorting {
 		return sorting;
 	}
 
+	public static HistorySorting getSortingByDescription() {
+		HistorySorting sorting = new HistorySorting();
+		sorting.toggle(CRIT_MEM_ASC, true);
+		return sorting;
+	}
+
 	public HistorySorting() {
 		super(SORT_CRITERIA_COUNT);
 	}

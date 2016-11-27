@@ -1,11 +1,11 @@
-package com.gb.ofxanalyser.service.file.pdf.itext;
+package com.gb.ofxanalyser.file.pdf.itext;
 
 import java.io.IOException;
 
-import com.gb.ofxanalyser.service.file.parser.FileContent;
-import com.gb.ofxanalyser.service.file.pdf.PdfParser;
-import com.gb.ofxanalyser.service.file.pdf.Rect;
-import com.gb.ofxanalyser.service.file.pdf.StringGrid;
+import com.gb.ofxanalyser.file.parser.FileContent;
+import com.gb.ofxanalyser.file.pdf.PdfParser;
+import com.gb.ofxanalyser.file.pdf.Rect;
+import com.gb.ofxanalyser.file.pdf.StringGrid;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 

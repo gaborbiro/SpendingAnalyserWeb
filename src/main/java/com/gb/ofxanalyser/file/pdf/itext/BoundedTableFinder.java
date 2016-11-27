@@ -1,7 +1,7 @@
-package com.gb.ofxanalyser.service.file.pdf.itext;
+package com.gb.ofxanalyser.file.pdf.itext;
 
-import com.gb.ofxanalyser.service.file.pdf.Rect;
-import com.gb.ofxanalyser.service.file.pdf.StringGrid;
+import com.gb.ofxanalyser.file.pdf.Rect;
+import com.gb.ofxanalyser.file.pdf.StringGrid;
 import com.itextpdf.awt.geom.Rectangle2D;
 import com.itextpdf.text.pdf.parser.ImageRenderInfo;
 import com.itextpdf.text.pdf.parser.RenderListener;

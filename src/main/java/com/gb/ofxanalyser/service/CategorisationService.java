@@ -17,23 +17,24 @@ import com.gb.ofxanalyser.util.MapFileReader;
 public class CategorisationService {
 
 	public static final String CATEGORY_SUBSCRIPTION = "Subscription";
+	private static final String MAPPING_FILE_NAME = "categories.map";
 
 	@Autowired
-	AppPreferences appPreferences;
+	AppPreferences prefs;
 
 	private Map<String, List<String>> cache;
 
-	private static File getMappingFile() {
-		return getLocalMappingFile();
+	public boolean hasMappingFileChanged() {
+		return getFile().lastModified() > prefs.getMappingFileLastAccess();
 	}
 
-	public boolean hasCategoriesFileChanged() {
-		return getMappingFile().lastModified() > appPreferences.getMappingFileLastModificationTime();
+	public void markMappingFileAsAccessed() {
+		prefs.setMappingFileLastAccess(System.currentTimeMillis());
 	}
 
 	public String getCategoryForTransaction(String description) {
 		if (cache == null) {
-			cache = new MapFileReader().read(getMappingFile());
+			cache = new MapFileReader().read(getFile());
 		}
 		String category = null;
 
@@ -47,7 +48,7 @@ public class CategorisationService {
 
 	public boolean isSubscription(String description) {
 		if (cache == null) {
-			cache = new MapFileReader().read(getMappingFile());
+			cache = new MapFileReader().read(getFile());
 		}
 		for (String key : cache.keySet()) {
 			if (description.toLowerCase().contains(key.toLowerCase())) {
@@ -75,12 +76,8 @@ public class CategorisationService {
 		}
 	}
 
-	private File getMappingResourceFile() {
+	private File getFile() {
 		ClassLoader classLoader = getClass().getClassLoader();
-		return new File(classLoader.getResource("categories").getFile());
-	}
-
-	private static File getLocalMappingFile() {
-		return new File("c:\\Work2\\Spring\\ofx-analyser-web\\src\\main\\resources\\categories");
+		return new File(classLoader.getResource(MAPPING_FILE_NAME).getFile());
 	}
 }

@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.file.parser.hsbc;
+package com.gb.ofxanalyser.file.parser.hsbc;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -6,15 +6,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 
-import com.gb.ofxanalyser.service.file.parser.FileContent;
-import com.gb.ofxanalyser.service.file.parser.FileEntry;
-import com.gb.ofxanalyser.service.file.parser.FileParser;
-import com.gb.ofxanalyser.service.file.parser.ParseException;
-import com.gb.ofxanalyser.service.file.pdf.PdfParser;
-import com.gb.ofxanalyser.service.file.pdf.Rect;
-import com.gb.ofxanalyser.service.file.pdf.StringGrid;
-import com.gb.ofxanalyser.service.file.pdf.dynagrid.Cell;
-import com.gb.ofxanalyser.service.file.pdf.itext.PdfParserImpl;
+import com.gb.ofxanalyser.file.parser.FileContent;
+import com.gb.ofxanalyser.file.parser.FileEntry;
+import com.gb.ofxanalyser.file.parser.FileParser;
+import com.gb.ofxanalyser.file.parser.ParseException;
+import com.gb.ofxanalyser.file.pdf.PdfParser;
+import com.gb.ofxanalyser.file.pdf.Rect;
+import com.gb.ofxanalyser.file.pdf.StringGrid;
+import com.gb.ofxanalyser.file.pdf.dynagrid.Cell;
+import com.gb.ofxanalyser.file.pdf.itext.PdfParserImpl;
 import com.gb.ofxanalyser.util.TextUtils;
 
 public class HsbcPdfParser implements FileParser {

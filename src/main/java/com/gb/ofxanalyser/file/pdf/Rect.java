@@ -1,4 +1,4 @@
-package com.gb.ofxanalyser.service.file.pdf;
+package com.gb.ofxanalyser.file.pdf;
 
 /**
  * Origo is in the upper bottom corner. <br>
