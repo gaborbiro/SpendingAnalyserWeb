@@ -1,8 +1,8 @@
 use ofxanalyser;
 
-drop table TRANSACTION;
-drop table USER_DOCUMENT;
-drop table APP_USER;
+drop table if exists TRANSACTION;
+drop table if exists USER_DOCUMENT;
+drop table if exists APP_USER;
 
 create table APP_USER (
    id BIGINT NOT NULL AUTO_INCREMENT,
