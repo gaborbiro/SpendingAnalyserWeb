@@ -212,7 +212,9 @@ public class DocumentsHandler {
 			transaction.setDocumentId(document.getId());
 			transaction.setCategory(categorisationService.getCategoryForTransaction(nameMemo));
 			transaction.setIsSubscription((byte) (categorisationService.isSubscription(nameMemo) ? 1 : 0));
-			transactions.add(transaction);
+			if (!transactions.add(transaction)) {
+				System.out.println("Not added: " + transaction);
+			}
 		}
 
 		public Set<TransactionBE> getTransactions() {

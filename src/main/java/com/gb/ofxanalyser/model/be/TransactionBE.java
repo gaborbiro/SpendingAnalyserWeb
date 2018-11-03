@@ -160,8 +160,8 @@ public class TransactionBE implements Comparable<TransactionBE> {
 
 	@Override
 	public String toString() {
-		return "TransactionBE [id=" + id + ", description=" + description + ", date_=" + date_ + ", amount=" + amount
-				+ ", user=" + user + "]";
+		return "TransactionBE [id=" + id + ", description=" + description + ", date_=" + date_ + ", amount="
+				+ (amount / 100) + ", user=" + user + "]";
 	}
 
 	@Override

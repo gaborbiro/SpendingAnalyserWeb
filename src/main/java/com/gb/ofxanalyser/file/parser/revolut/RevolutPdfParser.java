@@ -116,22 +116,25 @@ public class RevolutPdfParser implements FileParser {
 	}
 
 	private int processTable(FileContent file, int page, StringGrid table, FileEntrySink listener) {
+		int count = 0;
+		int row = 0;
 		for (Iterator<Iterator<Cell<Float, String>>> rowI = table.iterator(); rowI.hasNext();) {
-			FileEntry entry = processRow(rowI);
+			FileEntry entry = processRow(page, row++, rowI);
 
 			if (entry != null) {
 				listener.onEntry(file, entry);
-				return 1;
+				count++;
 			}
 		}
-		return 0;
+		return count;
 	}
 
-	private FileEntry processRow(Iterator<Iterator<Cell<Float, String>>> rowI) {
+	private FileEntry processRow(int page, int row, Iterator<Iterator<Cell<Float, String>>> rowI) {
 		int colIndex = 0;
 		Date date = null;
 		String description = null;
 		double amount = 0;
+//		StringBuffer debugBuffer = new StringBuffer();
 
 		for (Iterator<Cell<Float, String>> colI = rowI.next(); colI.hasNext();) {
 			Cell<Float, String> cell = colI.next();
@@ -148,6 +151,7 @@ public class RevolutPdfParser implements FileParser {
 			case 1:
 				// payee
 				description = data + " ";
+//				debugBuffer.append(description);
 				break;
 			case 2:
 				// paid out
@@ -172,10 +176,12 @@ public class RevolutPdfParser implements FileParser {
 			}
 			colIndex++;
 		}
-
+//		System.out.print(page + "/" + row + ": " + debugBuffer.toString());
 		if (date != null) {
+//			System.out.println(" success");
 			return new FileEntry(date, description, null, amount);
 		} else {
+//			System.out.println(" fail");
 			return null;
 		}
 	}

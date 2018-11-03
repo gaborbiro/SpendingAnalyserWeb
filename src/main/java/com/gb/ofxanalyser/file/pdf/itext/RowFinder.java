@@ -23,7 +23,7 @@ import com.itextpdf.text.pdf.parser.TextRenderInfo;
 public class RowFinder implements RenderListener {
 
 	private String target;
-	private Map<Float, TreeSet<TextRenderInfo>> candidates;
+	private Map<Float, TreeSet<TextRenderInfo>> candidates = new HashMap<Float, TreeSet<TextRenderInfo>>();
 	private Rectangle2D.Float[] result;
 
 	public RowFinder(String text) {
@@ -55,7 +55,7 @@ public class RowFinder implements RenderListener {
 	}
 
 	public void beginTextBlock() {
-		candidates = new HashMap<Float, TreeSet<TextRenderInfo>>();
+//		candidates = new HashMap<Float, TreeSet<TextRenderInfo>>();
 	}
 
 	public void endTextBlock() {
@@ -87,32 +87,6 @@ public class RowFinder implements RenderListener {
 				resultList.add(rectangle);
 				break; // we only consider the first match in the row
 			}
-
-			// if (lineCandidates.size() >= target.length) {
-			// int index = 0;
-			// Rectangle2D.Float rectangle = null;
-			//
-			// for (Iterator<TextRenderInfo> i = lineCandidates.iterator();
-			// i.hasNext();) {
-			// TextRenderInfo renderInfo = i.next();
-			//
-			// if (index < target.length &&
-			// target[index].equals(renderInfo.getText())) {
-			// if (rectangle == null) {
-			// rectangle = renderInfo.getAscentLine().getBoundingRectange();
-			// }
-			// rectangle.add(renderInfo.getDescentLine().getBoundingRectange());
-			//
-			// if (index == target.length - 1) {
-			// resultList.add(rectangle);
-			// break;
-			// } else {
-			// index++;
-			// }
-			// }
-			// }
-			// }
-
 		}
 		result = resultList.toArray(new Rectangle2D.Float[resultList.size()]);
 	}
@@ -183,48 +157,67 @@ public class RowFinder implements RenderListener {
 	}
 
 	private boolean match(String target, String input) {
-		return match_(target.getBytes(), input.getBytes())
-				|| match_(reverse(target.getBytes()), reverse(input.getBytes()));
-	}
+		Map<Byte, List<Integer>> inputMap = new HashMap<>();
+		byte[] inputBytes = input.getBytes();
 
-	private static boolean match_(byte[] target, byte[] input) {
-		if (target == null || target.length == 0 || input == null || input.length == 0) {
-			return false;
+		for (int i = 0; i < inputBytes.length; i++) {
+			List<Integer> positions = inputMap.get(inputBytes[i]);
+
+			if (positions == null) {
+				positions = new ArrayList<>();
+				inputMap.put(inputBytes[i], positions);
+			}
+			positions.add(i);
 		}
-		int tI = 0;
 
-		for (int i = 0; i < input.length; i++) {
-			if (input[i] == target[tI]) {
-				tI++;
-			} else {
-				// reset search
-				tI = 0;
+		byte[] targetBytes = target.getBytes();
+
+		for (int i = 0; i < targetBytes.length; i++) {
+			List<Integer> indexes = inputMap.get(targetBytes[i]);
+
+			if (indexes == null) {
+				continue;
+			}
+
+			for (int index : indexes) {
+				int inputI = index;
+				int targetI = i;
+				do {
+					inputI++;
+					targetI++;
+				} while (inputI < inputBytes.length && targetI < targetBytes.length
+						&& inputBytes[inputI] == targetBytes[targetI]);
+				boolean prefixMatch = i == 0 && inputI == inputBytes.length;
+				boolean middleMatch = index == 0 && inputI == inputBytes.length;
+				boolean postfixMatch = targetI == targetBytes.length && index == 0;
+				if (prefixMatch || middleMatch || postfixMatch) {
+					return true;
+				}
 			}
 		}
-		return tI > 0;
+		return false;
+	}
+
+	public static void main(String[] args) {
+		System.out.println("T:");
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "BALANCEBROUGHTFORWARD"));
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "B"));
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "BALANCE"));
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "BROUGHT"));
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "FORWARD"));
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "aaaBALANCE"));
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "FORWARDaaa"));
+		System.out.println("\nF:");
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "BALANCEaaa"));
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "aaaBROUGHT"));
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "aaaBROUGHTaaa"));
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "BROUGHTaaa"));
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", "aaaFORWARD"));
+		System.out.println(new RowFinder("a").match("BALANCEBROUGHTFORWARD", " "));
 	}
 
 	public static String stripWhitespace(String str) {
 		return str.trim().replaceAll("\\s", "");
-	}
-
-	public static byte[] reverse(final byte[] array) {
-		if (array == null) {
-			return null;
-		}
-		byte[] result = new byte[array.length];
-		System.arraycopy(array, 0, result, 0, array.length);
-		int i = 0;
-		int j = result.length - 1;
-		byte tmp;
-		while (j > i) {
-			tmp = result[j];
-			result[j] = result[i];
-			result[i] = tmp;
-			j--;
-			i++;
-		}
-		return result;
 	}
 
 	public static int search(int[] lengths, int position) {
@@ -234,5 +227,29 @@ public class RowFinder implements RenderListener {
 			}
 		}
 		return -1;
+	}
+
+	private static String print(Map<Float, TreeSet<TextRenderInfo>> candidates) {
+		StringBuffer result = new StringBuffer();
+		Float[] keys = candidates.keySet().toArray(new Float[candidates.size()]);
+		Arrays.sort(keys, new Comparator<Float>() {
+
+			public int compare(Float o1, Float o2) {
+				return (int) (o2 - o1);
+			}
+		});
+		for (float y : keys) {
+			TreeSet<TextRenderInfo> lineCandidates = candidates.get(y);
+			TextRenderInfo[] candidateArray = lineCandidates.toArray(new TextRenderInfo[lineCandidates.size()]);
+			StringBuffer line = new StringBuffer();
+
+			for (int i = 0; i < candidateArray.length; i++) {
+				String text = stripWhitespace(candidateArray[i].getText());
+				line.append(text);
+			}
+			result.append(line);
+			result.append("\n");
+		}
+		return result.toString();
 	}
 }

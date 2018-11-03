@@ -73,6 +73,7 @@ public class FileParserService implements FileEntrySink {
 		for (FileParser parser : getParserForFile(file)) {
 			System.out.print(parser.getConverterName() + "...");
 			try {
+				System.out.println();
 				int transactionCount = parser.parse(file, this);
 				if (transactionCount > 0) {
 					System.out.println("   success: " + transactionCount + " transactions");
